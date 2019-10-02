@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - preConditions:
+      - runningAs:
+          username: db_tg_bot_user
+
+  - include:
+      file: db/changelog/students.yaml
+  - include:
+      file: db/changelog/tasks.yaml

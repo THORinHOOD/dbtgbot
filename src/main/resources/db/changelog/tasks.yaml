@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: thorinhood
+      comment: "Create tasks table"
+      changes:
+        - createTable:
+            tableName: tasks
+            columns:
+              - column:
+                  name: nr
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: date_of_issue
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deadline
+                  type: datetime
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_score_offline
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_score_online
+                  type: int
+                  constraints:
+                    nullable: false

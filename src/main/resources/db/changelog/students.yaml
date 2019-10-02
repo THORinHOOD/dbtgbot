@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: thorinhood
+      comment: "Create students table"
+      changes:
+        - createTable:
+            tableName: students
+            columns:
+              - column:
+                  name: telegram_id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: group_nr
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sub_group_nr
+                  type: tinyint
+                  constraints:
+                    nullable: false
