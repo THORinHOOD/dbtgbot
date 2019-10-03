@@ -27,20 +27,16 @@ public class Bot extends TelegramLongPollingBot {
     private static String PROFILE_INFO = "telegram id : %s\nemail : %s\nfirst name : %s\n" +
         "last name : %s\ngroup : %s\nsub group : %s";
 
-    private enum State {
-        Normal, WaitingForTaskNumber;
-    }
-
     private String token;
     private StudentsRepository studentsRepository;
     private PracticeTasksRepository practiceTasksRepository;
-    private Map<Long, State> states;
+    private Map<Long, DialogStep<Update>> dialog;
 
     public Bot(String token, StudentsRepository studentsRepository, PracticeTasksRepository practiceTasksRepository) {
         this.token = token;
         this.studentsRepository = studentsRepository;
         this.practiceTasksRepository = practiceTasksRepository;
-        states = new ConcurrentHashMap<>();
+        dialog = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -48,24 +44,12 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().isUserMessage()) {
             try {
                 Long chatId = update.getMessage().getChatId();
-                if (!states.containsKey(chatId) || states.get(chatId) == State.Normal) {
-                    if (update.getMessage().getText().equals("/start")) {
-                        createKeyBoard(update.getMessage().getChatId());
-                    } else {
-                        processMessage(update.getMessage());
-                    }
-                } else if (states.containsKey(chatId) && states.get(chatId) == State.WaitingForTaskNumber) {
-                    try {
-                        Integer id = Integer.valueOf(update.getMessage().getText().trim());
-                        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(id);
-                        if (practiceTask.isEmpty()) {
-                            sendMessage(chatId, "Задание с таким номером не найдено. Попробуй снова.");
-                        } else {
-                            states.put(chatId, State.Normal);
-                            sendPdf(chatId, "Practice №" + id, practiceTask.get().getTask());
-                        }
-                    } catch (NumberFormatException exception) {
-                        sendMessage(chatId, "Введи номер задания.");
+                if (!dialog.containsKey(chatId)) {
+                    processMessage(update.getMessage());
+                } else {
+                    DialogStep<Update> current = dialog.get(chatId);
+                    if (current.step(update)) {
+                        dialog.remove(chatId);
                     }
                 }
             } catch (TelegramApiException e) {
@@ -76,33 +60,49 @@ public class Bot extends TelegramLongPollingBot {
 
     private void processMessage(Message message) throws TelegramApiException {
         switch (message.getText()) {
+            case "/start":
+                createDefaultKeyBoard(message.getChatId(), true);
+                break;
             case "Профиль":
                 getProfile(message.getChatId(), message.getFrom());
                 break;
-            case "Задание":
+            case "Задания":
                 waitTaskNumber(message.getChatId());
                 break;
         }
     }
 
-    private void createKeyBoard(Long chatId) throws TelegramApiException {
-        SendMessage message = new SendMessage()
-            .setChatId(chatId)
-            .setText("Hi!");
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow row = new KeyboardRow();
-        row.add("Профиль");
-        row.add("Задание");
-        keyboard.add(row);
-        keyboardMarkup.setKeyboard(keyboard);
-        message.setReplyMarkup(keyboardMarkup);
-        execute(message);
+    private void waitTaskNumber(Long chatId) throws TelegramApiException {
+        dialog.put(chatId, this::getPdfOfTask);
+        makeCurrentKeyBoard(chatId, "Какое задание?", true,
+            practiceTasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
     }
 
-    private void waitTaskNumber(Long chatId) throws TelegramApiException {
-        states.put(chatId, State.WaitingForTaskNumber);
-        sendMessage(chatId, "Какой номер задания?");
+    private boolean getPdfOfTask(Update update) throws TelegramApiException {
+        Long chatId = update.getMessage().getChatId();
+        Integer id = null;
+
+        if (update.getMessage().getText().equals("Назад")) {
+            createDefaultKeyBoard(chatId, false);
+            return true;
+        }
+
+        try {
+            id = Integer.valueOf(update.getMessage().getText().trim());
+        } catch (NumberFormatException exception) {
+            sendMessage(chatId, "Введи номер задания.");
+            return false;
+        }
+
+        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(id);
+        if (practiceTask.isEmpty()) {
+            sendMessage(chatId, "Задание с таким номером не найдено. Попробуй снова.");
+            return false;
+        } else {
+            sendPdf(chatId, "Practice №" + id, practiceTask.get().getTask());
+            createDefaultKeyBoard(chatId, false);
+            return true;
+        }
     }
 
     private void getProfile(Long chatId, User user) throws TelegramApiException {
@@ -130,6 +130,42 @@ public class Bot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage()
             .setChatId(chatId)
             .setText(text);
+        execute(message);
+    }
+
+    private void createDefaultKeyBoard(Long chatId, boolean greeting) throws TelegramApiException {
+        SendMessage message = new SendMessage()
+            .setChatId(chatId);
+        if (greeting) {
+            message.setText("Привет!");
+        } else {
+            message.setText("Чем помочь?");
+        }
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        row.add("Профиль");
+        row.add("Задания");
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+        message.setReplyMarkup(keyboardMarkup);
+        execute(message);
+    }
+
+    private void makeCurrentKeyBoard(Long chatId, String text, boolean backBtn, String... options) throws TelegramApiException {
+        SendMessage message = new SendMessage()
+            .setChatId(chatId)
+            .setText(text);
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        List.of(options).forEach(row::add);
+        if (backBtn) {
+            row.add("Назад");
+        }
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+        message.setReplyMarkup(keyboardMarkup);
         execute(message);
     }
 
