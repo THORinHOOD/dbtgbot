@@ -35,6 +35,6 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: sub_group_nr
-                  type: tinyint
+                  type: int
                   constraints:
                     nullable: false

@@ -24,7 +24,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: mark
-                  type: tinyint
+                  type: int
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
@@ -46,5 +46,5 @@ databaseChangeLog:
         - addPrimaryKey:
             columnNames: student, task
             constraintName: pk_result
-            schemaName: db_tg_bot
+            schemaName: public
             tableName: results

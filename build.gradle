@@ -27,7 +27,7 @@ dependencies {
 	implementation 'org.telegram:telegrambots:4.4.0.1'
 	compile group: 'net.sf.jsefa', name: 'jsefa', version: '1.1.0.RELEASE'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'mysql:mysql-connector-java'
+	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
