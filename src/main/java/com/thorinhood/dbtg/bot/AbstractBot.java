@@ -19,10 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbstractBot extends TelegramLongPollingBot {
 
     private String token;
+    private String name;
     private Map<Long, DialogStep<Update>> dialog;
 
-    public AbstractBot(String token) {
+    public AbstractBot(String name, String token) {
         this.token = token;
+        this.name = name;
         dialog = new ConcurrentHashMap<>();
     }
 
@@ -106,7 +108,7 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "database_course_bot";
+        return name;
     }
 
     @Override

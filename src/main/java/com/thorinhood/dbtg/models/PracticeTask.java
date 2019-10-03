@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
 
+@Embeddable
 @Data
 @Entity
 @Table(name = "tasks")

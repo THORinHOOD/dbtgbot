@@ -20,7 +20,7 @@ public class Bot extends AbstractBot {
     private PracticeTasksRepository practiceTasksRepository;
 
     public Bot(String token, StudentsRepository studentsRepository, PracticeTasksRepository practiceTasksRepository) {
-        super(token);
+        super("database_course_bot", token);
         this.studentsRepository = studentsRepository;
         this.practiceTasksRepository = practiceTasksRepository;
     }

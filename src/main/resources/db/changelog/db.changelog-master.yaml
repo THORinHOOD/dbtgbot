@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/students.yaml
   - include:
       file: db/changelog/tasks.yaml
+  - include:
+      file: db/changelog/results.yaml
