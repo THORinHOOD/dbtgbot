@@ -56,32 +56,32 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 } else if (states.containsKey(chatId) && states.get(chatId) == State.WaitingForTaskNumber) {
                     try {
-                        Integer id = Integer.valueOf(update.getMessage().getText());
+                        Integer id = Integer.valueOf(update.getMessage().getText().trim());
                         Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(id);
                         if (practiceTask.isEmpty()) {
-                            SendMessage message = new SendMessage()
-                                .setChatId(chatId)
-                                .setText("Задание с таким номером не найдено. Попробуй снова.");
-                            execute(message);
+                            sendMessage(chatId, "Задание с таким номером не найдено. Попробуй снова.");
                         } else {
-                            InputFile inputFile = new InputFile();
-                            inputFile.setMedia(new ByteArrayInputStream(practiceTask.get().getTask()), "Practice №" + id);
-                            SendDocument sendDocument = new SendDocument()
-                                .setDocument(inputFile)
-                                .setChatId(chatId);
                             states.put(chatId, State.Normal);
-                            execute(sendDocument);
+                            sendPdf(chatId, "Practice №" + id, practiceTask.get().getTask());
                         }
                     } catch (NumberFormatException exception) {
-                        SendMessage message = new SendMessage()
-                            .setChatId(chatId)
-                            .setText("Я тебя не понял. Какой номер?");
-                        execute(message);
+                        sendMessage(chatId, "Введи номер задания.");
                     }
                 }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void processMessage(Message message) throws TelegramApiException {
+        switch (message.getText()) {
+            case "Профиль":
+                getProfile(message.getChatId(), message.getFrom());
+                break;
+            case "Задание":
+                waitTaskNumber(message.getChatId());
+                break;
         }
     }
 
@@ -100,41 +100,36 @@ public class Bot extends TelegramLongPollingBot {
         execute(message);
     }
 
-    private void processMessage(Message message) throws TelegramApiException {
-        switch (message.getText()) {
-            case "Профиль":
-                getProfile(message.getChatId(), message.getFrom());
-                break;
-            case "Задание":
-                waitTaskNumber(message.getChatId());
-                break;
-        }
-    }
-
     private void waitTaskNumber(Long chatId) throws TelegramApiException {
-        SendMessage message = new SendMessage()
-            .setChatId(chatId)
-            .setText("Какой номер задания?");
         states.put(chatId, State.WaitingForTaskNumber);
-        execute(message);
+        sendMessage(chatId, "Какой номер задания?");
     }
 
     private void getProfile(Long chatId, User user) throws TelegramApiException {
         Optional<Student> students = studentsRepository.findById(String.valueOf(user.getId()));
-        SendMessage message = new SendMessage()
+        String text = students.isEmpty() ? "Не найден." : String.format(PROFILE_INFO,
+            students.get().getTelegramId(),
+            students.get().getEmail(),
+            students.get().getFirstName(),
+            students.get().getLastName(),
+            students.get().getGroup(),
+            students.get().getSubGroup());
+        sendMessage(chatId, text);
+    }
+
+    private void sendPdf(Long chatId, String title, byte[] pdf) throws TelegramApiException {
+        InputFile inputFile = new InputFile();
+        inputFile.setMedia(new ByteArrayInputStream(pdf), title);
+        SendDocument sendDocument = new SendDocument()
+            .setDocument(inputFile)
             .setChatId(chatId);
-        if (students.isEmpty()) {
-            message = message.setText("Не найден.");
-        } else {
-            Student student = students.get();
-            message = message.setText(String.format(PROFILE_INFO,
-                student.getTelegramId(),
-                student.getEmail(),
-                student.getFirstName(),
-                student.getLastName(),
-                student.getGroup(),
-                student.getSubGroup()));
-        }
+        execute(sendDocument);
+    }
+
+    private void sendMessage(Long chatId, String text) throws TelegramApiException {
+        SendMessage message = new SendMessage()
+            .setChatId(chatId)
+            .setText(text);
         execute(message);
     }
 

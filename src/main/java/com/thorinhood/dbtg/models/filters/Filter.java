@@ -22,4 +22,5 @@ public class Filter<T> {
     public Specification<T> getFilter() {
         return filter;
     }
+
 }

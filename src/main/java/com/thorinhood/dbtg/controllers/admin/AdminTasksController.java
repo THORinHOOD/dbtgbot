@@ -1,6 +1,5 @@
 package com.thorinhood.dbtg.controllers.admin;
 
-import com.google.inject.internal.asm.$TypePath;
 import com.thorinhood.dbtg.models.PracticeTask;
 import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
 import org.apache.commons.io.IOUtils;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -62,6 +60,16 @@ public class AdminTasksController {
         PracticeTask toReturn = practiceTask.get();
         toReturn.setTask(null);
         return ResponseEntity.ok().body(toReturn);
+    }
+
+    @DeleteMapping
+    public ResponseEntity deleteTask(@RequestParam("nr") int number) {
+        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(number);
+        if (practiceTask.isEmpty()) {
+            return ResponseEntity.badRequest().body("Not found.");
+        }
+        practiceTasksRepository.delete(practiceTask.get());
+        return ResponseEntity.ok().build();
     }
 
 }
