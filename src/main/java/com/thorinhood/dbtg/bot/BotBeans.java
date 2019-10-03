@@ -1,5 +1,6 @@
 package com.thorinhood.dbtg.bot;
 
+import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +16,12 @@ public class BotBeans {
     @Autowired
     private StudentsRepository studentsRepository;
 
+    @Autowired
+    private PracticeTasksRepository practiceTasksRepository;
+
     @Bean
     public Bot bot() {
-        return new Bot(token, studentsRepository);
+        return new Bot(token, studentsRepository, practiceTasksRepository);
     }
 
 }

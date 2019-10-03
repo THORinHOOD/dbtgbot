@@ -2,10 +2,7 @@ package com.thorinhood.dbtg.models;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
@@ -28,5 +25,9 @@ public class PracticeTask {
 
     @Column(name = "max_score_online")
     private Integer maxScoreOnline;
+
+    @Lob
+    @Column(name = "task")
+    private byte[] task;
 
 }

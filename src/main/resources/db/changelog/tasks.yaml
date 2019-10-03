@@ -14,6 +14,11 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  name: task
+                  type: longblob
+                  constraints:
+                    - nullable: true
+              - column:
                   name: date_of_issue
                   type: datetime
                   constraints:
