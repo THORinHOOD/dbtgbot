@@ -1,6 +1,7 @@
 package com.thorinhood.dbtg.models;
 
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -28,6 +29,7 @@ public class PracticeTask {
     private Integer maxScoreOnline;
 
     @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
     @Column(name = "task")
     private byte[] task;
 

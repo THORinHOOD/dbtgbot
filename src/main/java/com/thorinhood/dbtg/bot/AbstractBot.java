@@ -1,5 +1,6 @@
 package com.thorinhood.dbtg.bot;
 
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -22,10 +23,12 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
     private String name;
     private Map<Long, DialogStep<Update>> dialog;
 
-    public AbstractBot(String name, String token) {
+    public AbstractBot(String name, String token, DefaultBotOptions options) {
+        super(options);
         this.token = token;
         this.name = name;
         dialog = new ConcurrentHashMap<>();
+
     }
 
     @Override

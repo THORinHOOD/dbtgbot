@@ -4,6 +4,7 @@ import com.thorinhood.dbtg.models.PracticeTask;
 import com.thorinhood.dbtg.models.Student;
 import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -19,8 +20,9 @@ public class Bot extends AbstractBot {
     private StudentsRepository studentsRepository;
     private PracticeTasksRepository practiceTasksRepository;
 
-    public Bot(String token, StudentsRepository studentsRepository, PracticeTasksRepository practiceTasksRepository) {
-        super("database_course_bot", token);
+    public Bot(String token, DefaultBotOptions options, StudentsRepository studentsRepository,
+               PracticeTasksRepository practiceTasksRepository) {
+        super("database_course_bot", token, options);
         this.studentsRepository = studentsRepository;
         this.practiceTasksRepository = practiceTasksRepository;
     }
