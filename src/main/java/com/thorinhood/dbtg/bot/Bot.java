@@ -1,5 +1,7 @@
 package com.thorinhood.dbtg.bot;
 
+import com.thorinhood.dbtg.bot.keyboard.Keyboards;
+import com.thorinhood.dbtg.bot.keyboard.StartKeyBoard;
 import com.thorinhood.dbtg.models.PracticeTask;
 import com.thorinhood.dbtg.models.Student;
 import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
@@ -33,10 +35,10 @@ public class Bot extends AbstractBot {
             case "/start":
                 createDefaultKeyBoard(message.getChatId(), true);
                 break;
-            case BotKeyBoard.START_PROFILE:
+            case StartKeyBoard.PROFILE:
                 getProfile(message.getChatId(), message.getFrom());
                 break;
-            case BotKeyBoard.START_TASKS:
+            case StartKeyBoard.TASKS:
                 waitTaskNumber(message.getChatId());
                 break;
         }
@@ -52,7 +54,7 @@ public class Bot extends AbstractBot {
         Long chatId = update.getMessage().getChatId();
         Integer id = null;
 
-        if (update.getMessage().getText().equals(BotKeyBoard.BACK)) {
+        if (update.getMessage().getText().equals(Keyboards.BACK)) {
             createDefaultKeyBoard(chatId, false);
             return true;
         }
@@ -75,7 +77,7 @@ public class Bot extends AbstractBot {
     }
 
     private void getProfile(Long chatId, User user) throws TelegramApiException {
-        Optional<Student> students = studentsRepository.findById(String.valueOf(user.getId()));
+        Optional<Student> students = studentsRepository.findById(Long.valueOf(user.getId()));
         String text = students.isEmpty() ? "Не найден." : String.format(PROFILE_INFO,
             students.get().getTelegramId(),
             students.get().getEmail(),

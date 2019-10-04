@@ -43,7 +43,7 @@ public class AdminStudentsController {
     }
 
     @DeleteMapping(path = "/list", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteStudents(@RequestParam List<String> ids) {
+    public ResponseEntity deleteStudents(@RequestParam List<Long> ids) {
         return ResponseEntity.ok().body(ids.stream()
             .map(this::deleteOneStudent)
             .filter(Optional::isPresent)
@@ -62,7 +62,7 @@ public class AdminStudentsController {
     }
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteStudent(@RequestParam("telegramId") String telegramId) {
+    public ResponseEntity deleteStudent(@RequestParam("telegramId") Long telegramId) {
         Optional<Student> student = deleteOneStudent(telegramId);
         return student.isPresent() ?
             ResponseEntity.ok().body(student.get()) :
@@ -83,7 +83,7 @@ public class AdminStudentsController {
         return ResponseEntity.ok().body(students);
     }
 
-    private Optional<Student> deleteOneStudent(String telegramId) {
+    private Optional<Student> deleteOneStudent(Long telegramId) {
         Optional<Student> student = studentsRepository.findById(telegramId);
         if (student.isPresent()) {
             studentsRepository.delete(student.get());

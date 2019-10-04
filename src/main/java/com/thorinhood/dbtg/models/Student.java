@@ -15,7 +15,7 @@ public class Student {
     @Id
     @Column(name = "telegram_id")
     @CsvField(pos = 1)
-    private String telegramId;
+    private Long telegramId;
 
     @CsvField(pos = 2)
     @Column(name = "email")

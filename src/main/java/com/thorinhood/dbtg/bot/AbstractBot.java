@@ -1,5 +1,6 @@
 package com.thorinhood.dbtg.bot;
 
+import com.thorinhood.dbtg.bot.keyboard.Keyboards;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -81,7 +82,7 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
         } else {
             message.setText("Чем помочь?");
         }
-        message.setReplyMarkup(BotKeyBoard.START.getKeyboard());
+        message.setReplyMarkup(Keyboards.START.getKeyboard());
         execute(message);
     }
 

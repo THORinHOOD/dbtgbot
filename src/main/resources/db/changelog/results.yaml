@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: student
-                  type: varchar(255)
+                  type: bigint
                   constraints:
                     nullable: false
               - column:

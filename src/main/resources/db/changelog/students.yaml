@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: telegram_id
-                  type: varchar(255)
+                  type: bigint
                   constraints:
                     primaryKey: true
                     nullable: false
