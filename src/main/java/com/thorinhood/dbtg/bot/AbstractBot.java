@@ -81,14 +81,7 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
         } else {
             message.setText("Чем помочь?");
         }
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow row = new KeyboardRow();
-        row.add("Профиль");
-        row.add("Задания");
-        keyboard.add(row);
-        keyboardMarkup.setKeyboard(keyboard);
-        message.setReplyMarkup(keyboardMarkup);
+        message.setReplyMarkup(BotKeyBoard.START.getKeyboard());
         execute(message);
     }
 

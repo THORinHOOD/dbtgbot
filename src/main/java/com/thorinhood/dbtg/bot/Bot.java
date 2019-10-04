@@ -33,10 +33,10 @@ public class Bot extends AbstractBot {
             case "/start":
                 createDefaultKeyBoard(message.getChatId(), true);
                 break;
-            case "Профиль":
+            case BotKeyBoard.START_PROFILE:
                 getProfile(message.getChatId(), message.getFrom());
                 break;
-            case "Задания":
+            case BotKeyBoard.START_TASKS:
                 waitTaskNumber(message.getChatId());
                 break;
         }
@@ -52,7 +52,7 @@ public class Bot extends AbstractBot {
         Long chatId = update.getMessage().getChatId();
         Integer id = null;
 
-        if (update.getMessage().getText().equals("Назад")) {
+        if (update.getMessage().getText().equals(BotKeyBoard.BACK)) {
             createDefaultKeyBoard(chatId, false);
             return true;
         }
@@ -70,8 +70,7 @@ public class Bot extends AbstractBot {
             return false;
         } else {
             sendPdf(chatId, "Practice №" + id, practiceTask.get().getTask());
-            createDefaultKeyBoard(chatId, false);
-            return true;
+            return false;
         }
     }
 
