@@ -6,14 +6,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class StartKeyBoard extends CustomKeyBoard {
+public class StartKeyBoard extends AbstractCustomKeyBoard {
 
     public static final String PROFILE = "Профиль";
     public static final String TASKS = "Условия заданий";
     public static final String UPLOAD_SOLUTION = "Сдать задание";
 
     @Override
-    protected void init(ReplyKeyboardMarkup keyboardMarkup) {
+    protected List<KeyboardRow> init() {
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow row = new KeyboardRow();
         row.add(PROFILE);
@@ -22,7 +22,7 @@ public class StartKeyBoard extends CustomKeyBoard {
         row = new KeyboardRow();
         row.add(UPLOAD_SOLUTION);
         keyboard.add(row);
-        keyboardMarkup.setKeyboard(keyboard);
+        return keyboard;
     }
 
 }
