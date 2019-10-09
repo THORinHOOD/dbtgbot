@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: thorinhood
+      comment: "Create solutions table"
+      changes:
+        - createTable:
+            tableName: solutions
+            columns:
+              - column:
+                  name: student
+                  type: bigint
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: task
+                  type: int
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: solution
+                  type: bytea
+                  constraints:
+                    - nullable: false
+              - column:
+                  name: date_of_completion
+                  type: datetime
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: student
+            baseTableName: solutions
+            constraintName: fk_solutions_student
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: telegram_id
+            referencedTableName: students
+        - addForeignKeyConstraint:
+            baseColumnNames: task
+            baseTableName: solutions
+            constraintName: fk_solutions_task
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: nr
+            referencedTableName: tasks
+        - addPrimaryKey:
+            columnNames: student, task
+            constraintName: pk_solution
+            schemaName: public
+            tableName: solutions

@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/tasks.yaml
   - include:
       file: db/changelog/results.yaml
+  - include:
+      file: db/changelog/solutions.yaml

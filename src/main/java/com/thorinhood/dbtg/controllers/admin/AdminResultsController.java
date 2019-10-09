@@ -20,7 +20,7 @@ public class AdminResultsController {
     private ResultsRepository resultsRepository;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Result>> getResult(@RequestParam(required = false) String student,
+    public ResponseEntity<List<Result>> getResult(@RequestParam(required = false) Long student,
                                                   @RequestParam(required = false) Integer task) {
         return ResponseEntity.ok(resultsRepository.studentOrTask(student, task));
     }
