@@ -1,21 +1,26 @@
 package com.thorinhood.dbtg.bot;
 
 import com.thorinhood.dbtg.bot.keyboard.Keyboards;
+import org.apache.commons.io.IOUtils;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractBot extends TelegramLongPollingBot {
@@ -42,15 +47,17 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
                     DialogStep current = dialog.get(chatId);
                     DialogStep result = current.step(update);
 
-                    if (result.getStatus().equals(DialogStep.Status.End)) {
-                        createDefaultKeyBoard(chatId, false);
-                        dialog.remove(chatId);
-                    } else if (result.getStatus().equals(DialogStep.Status.Repeat)) {
-                        dialog.put(chatId, current);
-                    } else if (result.getStatus().equals(DialogStep.Status.HasNext)) {
-                        dialog.put(chatId, result);
-                    } else {
-                        throw new RuntimeException("unknown step status : " + result.getStatus());
+                    switch(result.getStatus()) {
+                        case End:
+                            createDefaultKeyBoard(chatId, false);
+                            dialog.remove(chatId);
+                            break;
+                        case Repeat:
+                            dialog.put(chatId, current);
+                            break;
+                        case HasNext:
+                            dialog.put(chatId, result);
+                            break;
                     }
                 }
             } catch (TelegramApiException e) {
@@ -109,6 +116,19 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
         keyboardMarkup.setKeyboard(keyboard);
         message.setReplyMarkup(keyboardMarkup);
         execute(message);
+    }
+
+    protected Optional<byte[]> downloadFile(Document document) throws TelegramApiException {
+        GetFile getFile = new GetFile().setFileId(document.getFileId());
+        File file = execute(getFile);
+        try {
+            URL fileUrl = new URL(file.getFileUrl(getBotToken()));
+            HttpURLConnection httpConn = (HttpURLConnection) fileUrl.openConnection();
+            InputStream inputStream = httpConn.getInputStream();
+            return Optional.of(IOUtils.toByteArray(inputStream));
+        } catch(IOException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override

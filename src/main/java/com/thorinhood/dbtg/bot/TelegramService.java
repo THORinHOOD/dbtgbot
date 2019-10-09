@@ -1,20 +1,18 @@
 package com.thorinhood.dbtg.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.meta.ApiContext;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import javax.annotation.PostConstruct;
 
-@Component
+@Service
 public class TelegramService {
 
     @Autowired
-    private Bot bot;
+    private Bot telegramBot;
 
     private TelegramBotsApi telegramBotsApi;
 
@@ -25,7 +23,7 @@ public class TelegramService {
 
     @PostConstruct
     public void postContruct() throws TelegramApiRequestException {
-        telegramBotsApi.registerBot(bot);
+        telegramBotsApi.registerBot(telegramBot);
     }
 
 }

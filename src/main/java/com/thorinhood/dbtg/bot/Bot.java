@@ -8,16 +8,13 @@ import com.thorinhood.dbtg.models.Student;
 import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
-import org.apache.commons.io.IOUtils;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 
@@ -72,6 +69,7 @@ public class Bot extends AbstractBot {
     private DialogStep uploadSolutionFile(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
         Integer taskId = (Integer) param;
+        Date currentDate = new Date();
 
         if (update.getMessage().hasText() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
@@ -82,37 +80,31 @@ public class Bot extends AbstractBot {
             return DialogStep.REPEAT();
         }
 
-        Document document = update.getMessage().getDocument();
+        Optional<byte[]> file = downloadFile(update.getMessage().getDocument());
 
-        GetFile getFile = new GetFile().setFileId(document.getFileId());
-        File file = execute(getFile);
-        try {
-            URL fileUrl = new URL(file.getFileUrl(getBotToken()));
-            HttpURLConnection httpConn = (HttpURLConnection) fileUrl.openConnection();
-            InputStream inputStream = httpConn.getInputStream();
-            byte[] output = IOUtils.toByteArray(inputStream);
+        if (file.isEmpty()) {
+            sendMessage(chatId, "Не удалось загрузить решение. Попробуйте снова.");
+            return DialogStep.REPEAT();
+        } else {
             try {
                 solutionsRepository.save(Solution.builder()
-                    .dateOfCompletion(new Date())
-                    .solution(output)
+                    .dateOfCompletion(currentDate)
+                    .solution(file.get())
                     .student(Long.valueOf(update.getMessage().getFrom().getId()))
                     .task(taskId)
                     .build());
                 sendMessage(chatId, "Решение успешно загружено.");
                 return DialogStep.END();
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 sendMessage(chatId, "Не удалось загрузить решение. Попробуйте снова.");
                 return DialogStep.REPEAT();
             }
-        } catch (IOException e) {
-            sendMessage(chatId, "Не удалось загрузить решение. Попробуйте снова.");
-            return DialogStep.REPEAT();
         }
     }
 
     private DialogStep getSolutionId(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
-        Integer id = null;
+        Integer id;
 
         if (update.getMessage().hasDocument() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
@@ -137,7 +129,7 @@ public class Bot extends AbstractBot {
 
     private DialogStep getPdfOfTask(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
-        Integer id = null;
+        Integer id;
 
         if (update.getMessage().hasText() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
