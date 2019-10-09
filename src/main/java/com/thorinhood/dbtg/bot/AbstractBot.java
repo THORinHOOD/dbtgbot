@@ -22,27 +22,35 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
 
     private String token;
     private String name;
-    private Map<Long, DialogStep<Update>> dialog;
+    private Map<Long, DialogStep> dialog;
 
     public AbstractBot(String name, String token, DefaultBotOptions options) {
         super(options);
         this.token = token;
         this.name = name;
         dialog = new ConcurrentHashMap<>();
-
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().isUserMessage()) {
+        if (update.getMessage().isUserMessage()) {
             try {
                 Long chatId = update.getMessage().getChatId();
                 if (!dialog.containsKey(chatId)) {
                     processMessage(update.getMessage());
                 } else {
-                    DialogStep<Update> current = dialog.get(chatId);
-                    if (current.step(update)) {
+                    DialogStep current = dialog.get(chatId);
+                    DialogStep result = current.step(update);
+
+                    if (result.getStatus().equals(DialogStep.Status.End)) {
+                        createDefaultKeyBoard(chatId, false);
                         dialog.remove(chatId);
+                    } else if (result.getStatus().equals(DialogStep.Status.Repeat)) {
+                        dialog.put(chatId, current);
+                    } else if (result.getStatus().equals(DialogStep.Status.HasNext)) {
+                        dialog.put(chatId, result);
+                    } else {
+                        throw new RuntimeException("unknown step status : " + result.getStatus());
                     }
                 }
             } catch (TelegramApiException e) {
@@ -51,7 +59,7 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
         }
     }
 
-    protected void startDialog(Long chatId, DialogStep<Update> step) {
+    protected void startDialog(Long chatId, DialogStep step) {
         if (dialog.containsKey(chatId)) {
             throw new RuntimeException("Dialog already exists!!!");
         }

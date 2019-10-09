@@ -1,6 +1,7 @@
 package com.thorinhood.dbtg.bot;
 
 import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
+import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,18 +28,21 @@ public class BotBeans {
     @Autowired
     private PracticeTasksRepository practiceTasksRepository;
 
+    @Autowired
+    private SolutionsRepository solutionsRepository;
+
     @Bean
     public DefaultBotOptions proxyBotOptions() {
         DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
-        botOptions.setProxyHost(proxyHost);
-        botOptions.setProxyPort(proxyPort);
-        botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
+       // botOptions.setProxyHost(proxyHost);
+       // botOptions.setProxyPort(proxyPort);
+       // botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
         return botOptions;
     }
 
     @Bean
     public Bot bot(DefaultBotOptions proxyBotOptions) {
-        return new Bot(token, proxyBotOptions, studentsRepository, practiceTasksRepository);
+        return new Bot(token, proxyBotOptions, studentsRepository, practiceTasksRepository, solutionsRepository);
     }
 
 }
