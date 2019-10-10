@@ -1,7 +1,7 @@
 package com.thorinhood.dbtg.controllers.admin;
 
-import com.thorinhood.dbtg.models.PracticeTask;
-import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
+import com.thorinhood.dbtg.models.Task;
+import com.thorinhood.dbtg.repositories.TasksRepository;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,11 +18,11 @@ import java.util.Optional;
 public class AdminTasksController {
 
     @Autowired
-    private PracticeTasksRepository practiceTasksRepository;
+    private TasksRepository tasksRepository;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getTask(@RequestParam Integer nr) {
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(nr);
+    public ResponseEntity getTask(@RequestParam Long id) {
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isPresent()) {
             return ResponseEntity.ok().body(practiceTask.get());
         } else {
@@ -31,20 +31,20 @@ public class AdminTasksController {
     }
 
     @PostMapping
-    public ResponseEntity addTask(@RequestPart("json") PracticeTask task,
+    public ResponseEntity addTask(@RequestPart("json") Task task,
                                   @RequestPart("file") MultipartFile file) {
         try {
             task.setTask(IOUtils.toByteArray(file.getInputStream()));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
-        practiceTasksRepository.save(task);
+        tasksRepository.save(task);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/file", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> getTaskFile(@RequestParam("nr") int number) {
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(number);
+    public ResponseEntity<byte[]> getTaskFile(@RequestParam("id") long id) {
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -52,23 +52,23 @@ public class AdminTasksController {
     }
 
     @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getTask(@RequestParam("nr") int number) {
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(number);
+    public ResponseEntity getTask(@RequestParam("id") long id) {
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        PracticeTask toReturn = practiceTask.get();
+        Task toReturn = practiceTask.get();
         toReturn.setTask(null);
         return ResponseEntity.ok().body(toReturn);
     }
 
     @DeleteMapping
-    public ResponseEntity deleteTask(@RequestParam("nr") int number) {
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(number);
+    public ResponseEntity deleteTask(@RequestParam("id") long id) {
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isEmpty()) {
             return ResponseEntity.badRequest().body("Not found.");
         }
-        practiceTasksRepository.delete(practiceTask.get());
+        tasksRepository.delete(practiceTask.get());
         return ResponseEntity.ok().build();
     }
 

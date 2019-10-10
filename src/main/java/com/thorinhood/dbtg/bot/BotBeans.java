@@ -1,6 +1,6 @@
 package com.thorinhood.dbtg.bot;
 
-import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
+import com.thorinhood.dbtg.repositories.TasksRepository;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +15,14 @@ public class BotBeans {
     private StudentsRepository studentsRepository;
 
     @Autowired
-    private PracticeTasksRepository practiceTasksRepository;
+    private TasksRepository tasksRepository;
 
     @Autowired
     private SolutionsRepository solutionsRepository;
 
     @Bean
     public Bot telegramBot(String token, DefaultBotOptions botOptions) {
-        return new Bot(token, botOptions, studentsRepository, practiceTasksRepository, solutionsRepository);
+        return new Bot(token, botOptions, studentsRepository, tasksRepository, solutionsRepository);
     }
 
 }

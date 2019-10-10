@@ -14,7 +14,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: task
-                  type: int
+                  type: bigint
                   constraints:
                     - nullable: false
               - column:
@@ -41,7 +41,7 @@ databaseChangeLog:
             constraintName: fk_results_task
             onDelete: CASCADE
             onUpdate: RESTRICT
-            referencedColumnNames: nr
+            referencedColumnNames: id
             referencedTableName: tasks
         - addPrimaryKey:
             columnNames: student, task

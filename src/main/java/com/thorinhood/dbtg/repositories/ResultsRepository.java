@@ -12,6 +12,6 @@ public interface ResultsRepository extends JpaRepository<Result, Object>, JpaSpe
 
     @Query("SELECT r FROM com.thorinhood.dbtg.models.Result r " +
         "WHERE ((:student is null) or (:student = student)) and ((:task is null) or (:task = task))")
-    List<Result> studentOrTask(@Param("student") Long student, @Param("task") Integer task);
+    List<Result> studentOrTask(@Param("student") Long student, @Param("task") Long task);
 
 }

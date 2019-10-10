@@ -10,11 +10,14 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "tasks")
-public class PracticeTask {
+public class Task {
 
     @Id
-    @Column(name = "nr")
-    private Integer nr;
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "title")
+    private String title;
 
     @Column(name = "date_of_issue")
     private Date dateOfIssue;

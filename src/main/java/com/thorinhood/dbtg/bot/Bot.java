@@ -2,14 +2,13 @@ package com.thorinhood.dbtg.bot;
 
 import com.thorinhood.dbtg.bot.keyboard.Keyboards;
 import com.thorinhood.dbtg.bot.keyboard.StartKeyBoard;
-import com.thorinhood.dbtg.models.PracticeTask;
+import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.models.Solution;
 import com.thorinhood.dbtg.models.Student;
-import com.thorinhood.dbtg.repositories.PracticeTasksRepository;
+import com.thorinhood.dbtg.repositories.TasksRepository;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -24,15 +23,15 @@ public class Bot extends AbstractBot {
         "last name : %s\ngroup : %s\nsub group : %s";
 
     private StudentsRepository studentsRepository;
-    private PracticeTasksRepository practiceTasksRepository;
+    private TasksRepository tasksRepository;
     private SolutionsRepository solutionsRepository;
 
     public Bot(String token, DefaultBotOptions options, StudentsRepository studentsRepository,
-               PracticeTasksRepository practiceTasksRepository,
+               TasksRepository tasksRepository,
                SolutionsRepository solutionsRepository) {
         super("database_course_bot", token, options);
         this.studentsRepository = studentsRepository;
-        this.practiceTasksRepository = practiceTasksRepository;
+        this.tasksRepository = tasksRepository;
         this.solutionsRepository = solutionsRepository;
     }
 
@@ -57,13 +56,13 @@ public class Bot extends AbstractBot {
     private void waitTaskNumberToUpload(Long chatId) throws TelegramApiException {
         startDialog(chatId, DialogStep.NEXT(null, this::getSolutionId));
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            practiceTasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
+            tasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
     }
 
     private void waitTaskNumber(Long chatId) throws TelegramApiException {
         startDialog(chatId, DialogStep.NEXT(null, this::getPdfOfTask));
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            practiceTasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
+            tasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
     }
 
     private DialogStep uploadSolutionFile(Update update, Object param) throws TelegramApiException {
@@ -104,20 +103,20 @@ public class Bot extends AbstractBot {
 
     private DialogStep getSolutionId(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
-        Integer id;
+        Long id;
 
         if (update.getMessage().hasDocument() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
         }
 
         try {
-            id = Integer.valueOf(update.getMessage().getText().trim());
+            id = Long.valueOf(update.getMessage().getText().trim());
         } catch (NumberFormatException exception) {
             sendMessage(chatId, "Введи номер задания.");
             return DialogStep.REPEAT();
         }
 
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(id);
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isEmpty()) {
             sendMessage(chatId, "Задание с таким номером не найдено. Попробуй снова.");
             return DialogStep.REPEAT();
@@ -129,20 +128,20 @@ public class Bot extends AbstractBot {
 
     private DialogStep getPdfOfTask(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
-        Integer id;
+        Long id;
 
         if (update.getMessage().hasText() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
         }
 
         try {
-            id = Integer.valueOf(update.getMessage().getText().trim());
+            id = Long.valueOf(update.getMessage().getText().trim());
         } catch (NumberFormatException exception) {
             sendMessage(chatId, "Введи номер задания.");
             return DialogStep.REPEAT();
         }
 
-        Optional<PracticeTask> practiceTask = practiceTasksRepository.findById(id);
+        Optional<Task> practiceTask = tasksRepository.findById(id);
         if (practiceTask.isEmpty()) {
             sendMessage(chatId, "Задание с таким номером не найдено. Попробуй снова.");
             return DialogStep.REPEAT();
