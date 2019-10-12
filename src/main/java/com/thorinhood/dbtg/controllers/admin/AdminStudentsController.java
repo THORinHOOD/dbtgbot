@@ -51,8 +51,24 @@ public class AdminStudentsController {
             .collect(Collectors.toList()));
     }
 
+    @PostMapping("/edit")
+    public ResponseEntity editStudent(@RequestBody Student student) {
+        if (studentsRepository.findById(student.getTelegramId()).isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            studentsRepository.save(student);
+        } catch(Exception exception) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping
     public ResponseEntity addStudent(@RequestBody Student student) {
+        if (studentsRepository.findById(student.getTelegramId()).isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
         try {
             studentsRepository.save(student);
         } catch (Exception exception) {

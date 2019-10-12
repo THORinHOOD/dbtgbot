@@ -16,7 +16,7 @@ databaseChangeLog:
                   name: task
                   type: bigint
                   constraints:
-                    - nullable: false
+                    nullable: false
               - column:
                   name: when_did
                   type: datetime

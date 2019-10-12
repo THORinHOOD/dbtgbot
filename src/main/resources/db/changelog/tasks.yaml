@@ -44,3 +44,13 @@ databaseChangeLog:
                   type: int
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 5
+      author: thorinhood
+      comment: "Add unique constraints to tasks table"
+      changes:
+        - addUniqueConstraint:
+            columnNames: id
+            constraintName: id_const_tasks
+            schemaName: public
+            tableName: tasks

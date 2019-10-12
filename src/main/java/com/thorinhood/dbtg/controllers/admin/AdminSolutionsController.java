@@ -39,7 +39,7 @@ public class AdminSolutionsController {
 
     @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<SolutionExtra>> getSolution(@RequestParam(value = "student", required = false) Long student,
-                                                      @RequestParam(value = "task", required = false) Integer task) {
+                                                      @RequestParam(value = "task", required = false) Long task) {
         List<Solution> solutions = solutionsRepository.studentOrTask(student, task);
         return ResponseEntity.ok(solutions.stream().map(SolutionExtra::new).collect(Collectors.toList()));
     }
