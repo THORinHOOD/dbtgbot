@@ -2,12 +2,12 @@ package com.thorinhood.dbtg.bot;
 
 import com.thorinhood.dbtg.bot.keyboard.Keyboards;
 import com.thorinhood.dbtg.bot.keyboard.StartKeyBoard;
-import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.models.Solution;
 import com.thorinhood.dbtg.models.Student;
-import com.thorinhood.dbtg.repositories.TasksRepository;
+import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
+import com.thorinhood.dbtg.repositories.TasksRepository;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,12 +15,13 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class Bot extends AbstractBot {
 
     private static String PROFILE_INFO = "telegram id : %s\nemail : %s\nfirst name : %s\n" +
-        "last name : %s\ngroup : %s\nsub group : %s";
+            "last name : %s\ngroup : %s\nsub group : %s";
 
     private StudentsRepository studentsRepository;
     private TasksRepository tasksRepository;
@@ -61,18 +62,18 @@ public class Bot extends AbstractBot {
         startDialog(chatId, DialogStep.NEXT(null, this::getSolutionId));
 
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            tasksRepository.findAll().stream()
-                    .map(task -> task.getId() + ". " + task.getTitle())
-                    .toArray(String[]::new));
+                tasksRepository.findAll().stream()
+                        .map(task -> task.getId() + ". " + task.getTitle())
+                        .toArray(String[]::new));
     }
 
     private void waitTaskNumber(Long chatId) throws TelegramApiException {
         startDialog(chatId, DialogStep.NEXT(null, this::getPdfOfTask));
 
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            tasksRepository.findAll().stream()
-                    .map(task -> task.getId() + ". " + task.getTitle())
-                    .toArray(String[]::new));
+                tasksRepository.findAll().stream()
+                        .map(task -> task.getId() + ". " + task.getTitle())
+                        .toArray(String[]::new));
     }
 
     private DialogStep uploadSolutionFile(Update update, Object param) throws TelegramApiException {
@@ -96,12 +97,19 @@ public class Bot extends AbstractBot {
             return DialogStep.REPEAT();
         } else {
             try {
+                Long studentId = Long.valueOf(update.getMessage().getFrom().getId());
+                List<Solution> solutions = solutionsRepository.studentOrTask(studentId, taskId);
+                Long id = null;
+                if (solutions.size() > 0) {
+                    id = solutions.iterator().next().getId();
+                }
                 solutionsRepository.save(Solution.builder()
-                    .dateOfCompletion(currentDate)
-                    .solution(file.get())
-                    .student(Long.valueOf(update.getMessage().getFrom().getId()))
-                    .task(taskId)
-                    .build());
+                        .id(id)
+                        .dateOfCompletion(currentDate)
+                        .solution(file.get())
+                        .student(studentId)
+                        .task(taskId)
+                        .build());
                 sendMessage(chatId, "Решение успешно загружено.");
                 return DialogStep.END();
             } catch (Exception ex) {
@@ -166,12 +174,12 @@ public class Bot extends AbstractBot {
     private void getProfile(Long chatId, User user) throws TelegramApiException {
         Optional<Student> students = studentsRepository.findById(Long.valueOf(user.getId()));
         String text = students.isEmpty() ? "Не найден." : String.format(PROFILE_INFO,
-            students.get().getTelegramId(),
-            students.get().getEmail(),
-            students.get().getFirstName(),
-            students.get().getLastName(),
-            students.get().getGroup(),
-            students.get().getSubGroup());
+                students.get().getTelegramId(),
+                students.get().getEmail(),
+                students.get().getFirstName(),
+                students.get().getLastName(),
+                students.get().getGroup(),
+                students.get().getSubGroup());
         sendMessage(chatId, text);
     }
 

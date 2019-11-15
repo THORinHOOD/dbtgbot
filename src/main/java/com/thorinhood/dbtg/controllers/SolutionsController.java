@@ -3,23 +3,20 @@ package com.thorinhood.dbtg.controllers;
 import com.thorinhood.dbtg.models.Solution;
 import com.thorinhood.dbtg.models.Student;
 import com.thorinhood.dbtg.models.Task;
-import com.thorinhood.dbtg.models.dto.SolutionDto;
-import com.thorinhood.dbtg.models.filters.Filter;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import com.thorinhood.dbtg.repositories.TasksRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,17 +34,6 @@ public class SolutionsController {
 
     @Autowired
     private StudentsRepository studentsRepository;
-
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity addSolution(@RequestPart("json") SolutionDto solutionDto,
-                                      @RequestPart("file") MultipartFile file) {
-        /*try {
-            solutionsRepository.save(Solution.fromDto(solutionDto, IOUtils.toByteArray(file.getInputStream())));
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().build();
-        }*/
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<SolutionExtra>> getSolution(@RequestParam(value = "student", required = false) Long student,
@@ -141,7 +127,7 @@ public class SolutionsController {
         }
         try {
             return new SimpleDateFormat("yyyy-MM-dd").parse(date);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             return null;
         }
     }

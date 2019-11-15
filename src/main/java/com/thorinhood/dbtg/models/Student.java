@@ -1,12 +1,13 @@
 package com.thorinhood.dbtg.models;
 
-import com.thorinhood.dbtg.models.dto.SolutionDto;
 import lombok.Data;
 import net.sf.jsefa.csv.annotation.CsvDataType;
 import net.sf.jsefa.csv.annotation.CsvField;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @CsvDataType
 @Data
@@ -38,7 +39,6 @@ public class Student {
     @CsvField(pos = 6)
     @Column(name = "sub_group_nr")
     private int subGroup;
-
 
 
 }
