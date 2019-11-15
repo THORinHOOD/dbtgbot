@@ -127,6 +127,7 @@ public abstract class AbstractBot extends TelegramLongPollingBot {
             InputStream inputStream = httpConn.getInputStream();
             return Optional.of(IOUtils.toByteArray(inputStream));
         } catch(IOException ex) {
+            ex.printStackTrace();
             return Optional.empty();
         }
     }

@@ -37,6 +37,10 @@ public class Bot extends AbstractBot {
 
     @Override
     protected void processMessage(Message message) throws TelegramApiException {
+        if (message == null) {
+            return;
+        }
+
         switch (message.getText()) {
             case "/start":
                 createDefaultKeyBoard(message.getChatId(), true);
@@ -55,19 +59,25 @@ public class Bot extends AbstractBot {
 
     private void waitTaskNumberToUpload(Long chatId) throws TelegramApiException {
         startDialog(chatId, DialogStep.NEXT(null, this::getSolutionId));
+
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            tasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
+            tasksRepository.findAll().stream()
+                    .map(task -> task.getId() + ". " + task.getTitle())
+                    .toArray(String[]::new));
     }
 
     private void waitTaskNumber(Long chatId) throws TelegramApiException {
         startDialog(chatId, DialogStep.NEXT(null, this::getPdfOfTask));
+
         makeCurrentKeyBoard(chatId, "Какое задание?", true,
-            tasksRepository.getAllIds().stream().map(String::valueOf).toArray(String[]::new));
+            tasksRepository.findAll().stream()
+                    .map(task -> task.getId() + ". " + task.getTitle())
+                    .toArray(String[]::new));
     }
 
     private DialogStep uploadSolutionFile(Update update, Object param) throws TelegramApiException {
         Long chatId = update.getMessage().getChatId();
-        Integer taskId = (Integer) param;
+        Long taskId = (Long) param;
         Date currentDate = new Date();
 
         if (update.getMessage().hasText() && update.getMessage().getText().equals(Keyboards.BACK)) {
@@ -110,7 +120,8 @@ public class Bot extends AbstractBot {
         }
 
         try {
-            id = Long.valueOf(update.getMessage().getText().trim());
+            String message = update.getMessage().getText().trim();
+            id = Long.valueOf(message.substring(0, message.indexOf(".")));
         } catch (NumberFormatException exception) {
             sendMessage(chatId, "Введи номер задания.");
             return DialogStep.REPEAT();
@@ -135,7 +146,8 @@ public class Bot extends AbstractBot {
         }
 
         try {
-            id = Long.valueOf(update.getMessage().getText().trim());
+            String message = update.getMessage().getText().trim();
+            id = Long.valueOf(message.substring(0, message.indexOf(".")));
         } catch (NumberFormatException exception) {
             sendMessage(chatId, "Введи номер задания.");
             return DialogStep.REPEAT();

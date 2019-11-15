@@ -1,6 +1,5 @@
 package com.thorinhood.dbtg.models;
 
-import com.thorinhood.dbtg.models.dto.SolutionDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,16 +18,16 @@ import java.util.Date;
 @Table(name = "solutions")
 public class Solution {
 
-    public static Solution fromDto(SolutionDto solutionDto, byte[] solution) {
-        return new Solution(solutionDto.getTelegramId(), solutionDto.getTaskId(), solution, new Date());
-    }
-
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "student")
     private Long student;
 
     @Column(name = "task")
-    private Integer task;
+    private Long task;
 
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
@@ -37,6 +36,5 @@ public class Solution {
 
     @Column(name = "date_of_completion")
     private Date dateOfCompletion;
-
 
 }

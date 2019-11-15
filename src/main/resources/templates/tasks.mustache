@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:=http://www.w3.org/1999/xhtml>
+<head>
+    {{> meta}}
+    <title>Задания</title>
+</head>
+<body>
+    <script>
+        window.onload = function() {
+                '{{#id}}'
+                document.getElementById("id").value = '{{id}}';
+                '{{/id}}'
+                '{{#title}}'
+                document.getElementById("title").value = '{{title}}';
+                '{{/title}}'
+                '{{#deadline}}'
+                document.getElementById("deadline").value = '{{deadline}}';
+                '{{/deadline}}'
+                '{{#dateOfIssue}}'
+                document.getElementById("date_of_issue").value = '{{dateOfIssue}}';
+                '{{/dateOfIssue}}'
+                '{{#maxScoreOffline}}'
+                document.getElementById("max_score_offline").value = '{{maxScoreOffline}}';
+                '{{/maxScoreOffline}}'
+                '{{#maxScoreOnline}}'
+                document.getElementById("max_score_online").value = '{{maxScoreOnline}}';
+                '{{/maxScoreOnline}}'
+        }
+    </script>
+
+    <h2>Задания</h2>
+
+    <form action="/">
+        <input class="btn btn-primary mb-2" type="submit" value="Главная">
+    </form>
+
+    <button style="margin-bottom:2em" type="button" id="show_addTaskModal" class="btn btn-primary" data-toggle="modal" data-target="#addTaskModal">
+        Добавить задание
+    </button>
+
+    <!-- ADD TASK -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalCenterTitle">Добавить задание</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Название</label>
+                    <input class="form-control" id="add_title" type="text" name="title" placeholder="Название">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Дата начала</label>
+                    <input class="form-control" id="add_date_of_issue" type="date" name="date_of_issue" placeholder="Дата начала">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Дедлайн</label>
+                    <input class="form-control" id="add_deadLine" type="date" name="deadLine" placeholder="Дедлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Макс. оценка оффлайн</label>
+                    <input class="form-control" id="add_max_score_offline" type="number" name="max_score_offline" placeholder="Макс. оценка оффлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Макс. оценка онлайн</label>
+                    <input class="form-control" id="add_max_score_online" type="number" name="max_score_online" placeholder="Макс. оценка онлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Задание pdf</label>
+                    <input class="form-control" id="add_task" type="file" name="task" placeholder="Задание">
+                </div>
+                <input type="hidden" id="add-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
+                <input class="btn btn-primary mb-2" type="submit" value="Добавить" onclick="addTask()"/>
+                <button type="button" id="close_addTaskModal" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT TASK -->
+    <button type="button" hidden="true" id="show_editTaskModal" class="btn" data-toggle="modal" data-target="#editTaskModal"></button>
+
+    <div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalCenterTitle">Редактировать задание</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label>Название</label>
+                    <input class="form-control" id="edit_title" type="text" name="title" placeholder="Название">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Дата начала</label>
+                    <input class="form-control" id="edit_date_of_issue" type="date" name="date_of_issue" placeholder="Дата начала">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Дедлайн</label>
+                    <input class="form-control" id="edit_deadLine" type="date" name="deadLine" placeholder="Дедлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Макс. оценка оффлайн</label>
+                    <input class="form-control" id="edit_max_score_offline" type="number" name="max_score_offline" placeholder="Макс. оценка оффлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Макс. оценка онлайн</label>
+                    <input class="form-control" id="edit_max_score_online" type="number" name="max_score_online" placeholder="Макс. оценка онлайн">
+                </div>
+                <div class="form-group mb-2">
+                    <label>Задание pdf</label>
+                    <input class="form-control" id="edit_task" type="file" name="task" placeholder="Задание">
+                </div>
+                <input type="hidden" id="edit-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
+                <input class="btn btn-primary mb-2" type="submit" value="Редактировать" onclick="editTask()"/>
+                <button type="button" id="close_editTaskModal" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var file = null;
+        var fileEdit = null;
+        $('#add_task').on('change', function(e){
+            file = e.target.files[0];
+        });
+
+        $('#edit_task').on('change', function(e){
+            fileEdit = e.target.files[0];
+        });
+
+        function addTask() {
+            var csrfToken = document.getElementById('add-csrf-token').value;
+            var data = new FormData();
+            data.append('file', file);
+            data.append('title', document.getElementById('add_title').value);
+            data.append('date_of_issue', document.getElementById('add_date_of_issue').value);
+            data.append('deadLine', document.getElementById('add_deadLine').value);
+            data.append('max_score_offline', document.getElementById('add_max_score_offline').value);
+            data.append('max_score_online', document.getElementById('add_max_score_online').value);
+
+            $.ajax({
+                type: 'POST',
+                url: "/api/v1/tasks",
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                },
+                success: function() {
+                    $('#close_addTaskModal').click();
+                    $('#filter_students').click();
+                }
+            });
+        }
+    </script>
+
+    <!-- FILTERS -->
+    <form class="form-inline" action="/api/v1/tasks" method="get">
+        <div class="form-group mb-2">
+            <label for="id" class="sr-only">Id</label>
+            <input class="form-control" id="id" type="number" name="id" placeholder="Id">
+        </div>
+        <div class="form-group mb-2">
+            <label for="title" class="sr-only">Название</label>
+            <input class="form-control" id="title" type="text" name="title" placeholder="Название">
+        </div>
+        <div class="form-group mb-2">
+            <label for="date_of_issue" class="sr-only">Дата начала</label>
+            <input class="form-control" id="date_of_issue" type="date" name="date_of_issue" placeholder="Дата начала">
+        </div>
+        <div class="form-group mb-2">
+            <label for="deadline" class="sr-only">Дедлайн</label>
+            <input class="form-control" id="deadline" type="date" name="deadline" placeholder="Дедлайн">
+        </div>
+        <div class="form-group mb-2">
+            <label for="max_score_offline" class="sr-only">Макс. оценка оффлайн</label>
+            <input class="form-control" id="max_score_offline" type="number" name="max_score_offline" placeholder="Макс. оценка оффлайн">
+        </div>
+        <div class="form-group mb-2">
+            <label for="max_score_online" class="sr-only">Макс. оценка онлайн</label>
+            <input class="form-control" id="max_score_online" type="number" name="max_score_online" placeholder="Макс. оценка онлайн">
+        </div>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+        <input class="btn btn-primary mb-2" id="filter_tasks" type="submit" value="Отфильтровать"/>
+    </form>
+
+    <form class="form-inline" action="/api/v1/tasks" method="get">
+        <div class="form-group mb-2">
+            <label for="id" class="sr-only">Id</label>
+            <input class="form-control" id="id" type="hidden" name="id" placeholder="Id">
+        </div>
+        <div class="form-group mb-2">
+            <label for="title" class="sr-only">Название</label>
+            <input class="form-control" id="title" type="hidden" name="title" placeholder="Название">
+        </div>
+        <div class="form-group mb-2">
+            <label for="date_of_issue" class="sr-only">Дата начала</label>
+            <input class="form-control" id="date_of_issue" type="hidden" name="date_of_issue" placeholder="Дата начала">
+        </div>
+        <div class="form-group mb-2">
+            <label for="deadline" class="sr-only">Дедлайн</label>
+            <input class="form-control" id="deadline" type="hidden" name="deadline" placeholder="Дедлайн">
+        </div>
+        <div class="form-group mb-2">
+            <label for="max_score_offline" class="sr-only">Макс. оценка оффлайн</label>
+            <input class="form-control" id="max_score_offline" type="hidden" name="max_score_offline" placeholder="Макс. оценка оффлайн">
+        </div>
+        <div class="form-group mb-2">
+            <label for="max_score_online" class="sr-only">Макс. оценка онлайн</label>
+            <input class="form-control" id="max_score_online" type="hidden" name="max_score_online" placeholder="Макс. оценка онлайн">
+        </div>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+        <input class="btn btn-primary mb-2" id="filter_tasks" type="submit" value="Сбросить фильтры"/>
+    </form>
+
+    <!-- TASKS TABLE -->
+    <table id="table_tasks" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Название</th>
+            <th>Дата начала</th>
+            <th>Дедлайн</th>
+            <th>Макс. оценка оффлайн</th>
+            <th>Макс. оценка онлайн</th>
+            <th/>
+            <th/>
+            <th/>
+            <th/>
+        </tr>
+        </thead>
+        <tbody>
+        {{#tasks}}
+            <tr>
+                <td>{{id}}</td>
+                <td>{{title}}</td>
+                <td>{{dateOfIssue}}</td>
+                <td>{{deadLine}}</td>
+                <td>{{maxScoreOffline}}</td>
+                <td>{{maxScoreOnline}}</td>
+                <td><button type="button" class="btn" onclick="openEditTask(this)">Редактировать</button></td>
+                <td><button type="button" class="btn-danger" onclick="deleteTask(this)">Удалить</button></td>
+                <td><button type="button" class="btn" onclick="openTask(this)">Открыть</button></td>
+                <td><form method="GET" action="/api/v1/solutions">
+                    <input type="hidden" name="task_id" value="{{id}}"/>
+                    <input class="btn btn-primary mb-2" type="submit" value="Решения студентов"/>
+                </form></td>
+            </tr>
+        {{/tasks}}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('#table_tasks').DataTable();
+        });
+    </script>
+
+    <script>
+        var editId = null;
+
+        function editTask() {
+            var csrfToken = document.getElementById('edit-csrf-token').value;
+            var data = new FormData();
+            data.append('file', fileEdit);
+            data.append('id', editId);
+            data.append('title', document.getElementById('edit_title').value);
+            data.append('date_of_issue', document.getElementById('edit_date_of_issue').value);
+            data.append('deadLine', document.getElementById('edit_deadLine').value);
+            data.append('max_score_offline', document.getElementById('edit_max_score_offline').value);
+            data.append('max_score_online', document.getElementById('edit_max_score_online').value);
+
+            $.ajax({
+                type: 'POST',
+                url: "/api/v1/tasks/edit",
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                },
+                success: function() {
+                    $('#close_editTaskModal').click();
+                    $('#filter_tasks').click();
+                }
+            });
+        }
+
+        function openEditTask(el) {
+            var row = el.parentNode.parentNode;
+            editId = row.cells[0].textContent;
+            document.getElementById('edit_title').value = row.cells[1].textContent;
+            document.getElementById('edit_date_of_issue').value = row.cells[2].textContent.split(' ')[0];
+            document.getElementById('edit_deadLine').value = row.cells[3].textContent.split(' ')[0];
+            document.getElementById('edit_max_score_offline').value = row.cells[4].textContent;
+            document.getElementById('edit_max_score_online').value = row.cells[5].textContent;
+            $('#show_editTaskModal').click();
+        }
+
+        function openTask(el) {
+            var row = el.parentNode.parentNode;
+            window.location = "/api/v1/tasks/file?id=" + row.cells[0].textContent;
+        }
+
+        function deleteTask(el) {
+            var row = el.parentNode.parentNode;
+            var csrfToken = document.getElementById('add-csrf-token').value;
+            $.ajax({
+                type: 'DELETE',
+                url: "/api/v1/tasks",
+                data: {
+                    id : row.cells[0].textContent
+                },
+                cache: false,
+                beforeSend: function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                },
+                success: function() {
+                    $('#filter_tasks').click();
+                }
+            });
+        }
+    </script>
+
+</body>

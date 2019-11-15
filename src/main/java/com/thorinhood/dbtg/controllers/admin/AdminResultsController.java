@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/admin/results")
 public class AdminResultsController {
 
@@ -39,7 +39,7 @@ public class AdminResultsController {
     public ResponseEntity deleteResult(@RequestParam String student,
                                        @RequestParam Integer task) {
         Filter<Result> filter = new Filter<Result>()
-            .and("resultPK", new Result.ResultPK(student, task));
+            .and("resultPK", new Result.ResultPK(student, task), Filter::eq);
         List<Result> results = resultsRepository.findAll(filter.getFilter());
         if (results.size() != 1) {
             return ResponseEntity.badRequest().build();

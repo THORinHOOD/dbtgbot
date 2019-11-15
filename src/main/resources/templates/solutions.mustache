@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:=http://www.w3.org/1999/xhtml>
+<head>
+    {{> meta}}
+    <title>Решения студентов</title>
+</head>
+<body>
+<script>
+    window.onload = function() {
+        '{{#studentLastname}}'
+        document.getElementById('student_lastname').value = '{{studentLastname}}';
+        '{{/studentLastname}}'
+        '{{#studentFirstname}}'
+        document.getElementById('student_firstname').value = '{{studentFirstname}}';
+        '{{/studentFirstname}}'
+        '{{#studentId}}'
+        document.getElementById('student_id').value = '{{studentId}}';
+        '{{/studentId}}'
+        '{{#dateOfCompletion}}'
+        document.getElementById('date_of_completion').value = '{{dateOfCompletion}}';
+        '{{/dateOfCompletion}}'
+        '{{#studentGroup}}'
+        document.getElementById('student_group').value = '{{studentGroup}}';
+        '{{/studentGroup}}'
+        '{{#studentSubgroup}}'
+        document.getElementById('student_subgroup').value = '{{studentSubgroup}}';
+        '{{/studentSubgroup}}'
+    }
+</script>
+
+{{#taskTitle}}
+<h2>Решения студентов задания "{{taskTitle}}"</h2>
+{{/taskTitle}}
+
+<form action="/">
+    <input class="btn btn-primary mb-2" type="submit" value="Главная">
+</form>
+
+<!-- FILTERS -->
+<form class="form-inline" action="/api/v1/solutions" method="get">
+    <div class="form-group mb-2">
+        <input class="form-control" id="task_id" type="hidden" name="task_id" value="{{taskId}}">
+    </div>
+    <div class="form-group mb-2">
+        <label for="student_id" class="sr-only">Student Id</label>
+        <input class="form-control" id="student_id" type="number" name="student_id" placeholder="Student Id">
+    </div>
+    <div class="form-group mb-2">
+        <label for="student_lastname" class="sr-only">Фамилия</label>
+        <input class="form-control" id="student_lastname" type="text" name="student_lastname" placeholder="Фамилия">
+    </div>
+    <div class="form-group mb-2">
+        <label for="student_firstname" class="sr-only">Имя</label>
+        <input class="form-control" id="student_firstname" type="text" name="student_firstname" placeholder="Имя">
+    </div>
+    <div class="form-group mb-2">
+        <label for="student_group" class="sr-only">Группа</label>
+        <input class="form-control" id="student_group" type="text" name="student_group" placeholder="Группа">
+    </div>
+    <div class="form-group mb-2">
+        <label for="student_subgroup" class="sr-only">Подгруппа</label>
+        <input class="form-control" id="student_subgroup" type="number" name="student_subgroup" placeholder="Подгруппа">
+    </div>
+    <div class="form-group mb-2">
+        <label for="date_of_completion" class="sr-only">Дата сдачи</label>
+        <input class="form-control" id="date_of_completion" type="date" name="date_of_completion" placeholder="Дата сдачи">
+    </div>
+    <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+    <input class="btn btn-primary mb-2" id="filter_solutions" type="submit" value="Отфильтровать"/>
+</form>
+
+<form class="form-inline" action="/api/v1/solutions" method="get">
+    <div class="form-group mb-2">
+        <input class="form-control" id="task_id" type="hidden" name="task_id" value="{{taskId}}">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="student_id" type="hidden" name="student_id">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="student_lastname" type="hidden" name="student_lastname">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="student_firstname" type="hidden" name="student_firstname">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="student_group" type="hidden" name="student_group">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="student_subgroup" type="hidden" name="student_subgroup">
+    </div>
+    <div class="form-group mb-2">
+        <input class="form-control" id="date_of_completion" type="hidden" name="date_of_completion">
+    </div>
+    <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+    <input class="btn btn-primary mb-2" id="filter_solutions" type="submit" value="Сбросить фильтры"/>
+</form>
+
+
+<!-- SOLUTIONS TABLE -->
+<table id="table_solutions" class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Student Id</th>
+        <th>Фамилия</th>
+        <th>Имя</th>
+        <th>Группа</th>
+        <th>Подгруппа</th>
+        <th>Дата сдачи</th>
+        <th>Решение</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#solutions}}
+        <tr>
+            <td>{{studentId}}</td>
+            <td>{{studentLastname}}</td>
+            <td>{{studentFirstname}}</td>
+            <td>{{studentGroup}}</td>
+            <td>{{studentSubgroup}}</td>
+            <td>{{dateOfSolution}}</td>
+            <td><button type="button" class="btn" onclick="openTask2('{{solutionId}}')">Открыть</button></td>
+        </tr>
+    {{/solutions}}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        $('#table_solutions').DataTable();
+    });
+
+    function openTask2(solutionId) {
+        window.location = "/api/v1/solutions/file?id=" + solutionId
+    }
+
+    function openTask(el) {
+        var row = el.parentNode.parentNode;
+        window.location = "/api/v1/solutions/file?id=" + row.cells[0].textContent;
+    }
+</script>
+
+</body>

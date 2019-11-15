@@ -1,18 +1,26 @@
 package com.thorinhood.dbtg.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Embeddable
 @Data
 @Entity
 @Table(name = "tasks")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Task {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -35,5 +43,8 @@ public class Task {
     @Type(type = "org.hibernate.type.BinaryType")
     @Column(name = "task")
     private byte[] task;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private List<Solution> solutions;
 
 }

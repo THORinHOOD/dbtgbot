@@ -54,3 +54,16 @@ databaseChangeLog:
             constraintName: id_const_tasks
             schemaName: public
             tableName: tasks
+  - changeSet:
+      id: 6
+      author: thorinhood
+      changes:
+        - addAutoIncrement:
+            columnDataType: int
+            columnName: id
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
+            schemaName: public
+            startWith: 1
+            tableName: tasks

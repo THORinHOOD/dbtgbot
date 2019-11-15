@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:=http://www.w3.org/1999/xhtml>
+<head>
+    {{> meta}}
+    <title>Студенты</title>
+</head>
+<body>
+    <script>
+        window.onload = function() {
+            '{{#lastname}}'
+            document.getElementById("lastname").value = '{{lastname}}';
+            '{{/lastname}}'
+            '{{#firstname}}'
+            document.getElementById("firstname").value = '{{firstname}}';
+            '{{/firstname}}'
+            '{{#email}}'
+            document.getElementById("email").value = '{{email}}';
+            '{{/email}}'
+            '{{#group}}'
+            document.getElementById("group").value = '{{group}}';
+            '{{/group}}'
+            '{{#subgroup}}'
+            document.getElementById("subgroup").value = '{{subgroup}}';
+            '{{/subgroup}}'
+        }
+    </script>
+
+    <h2>Студенты</h2>
+
+    <form action="/">
+        <input class="btn btn-primary mb-2" type="submit" value="Главная">
+    </form>
+
+    <button style="margin-bottom:2em" type="button" id="show_addStudentModal" class="btn btn-primary" data-toggle="modal" data-target="#addStudentModal">
+        Добавить студента
+    </button>
+
+    <div class="input-group mb-3">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="inputGroupFile02"/>
+            <label class="custom-file-label" for="inputGroupFile02">csv file</label>
+        </div>
+        <div class="input-group-append">
+            <button class="btn btn-primary" id="upload_students">Загрузить</button>
+        </div>
+    </div>
+
+    <script>
+        var file = null;
+        $('#inputGroupFile02').on('change',function(e){
+            var fileName = $(this).val();
+            file = e.target.files[0];
+            $(this).next('.custom-file-label').html(fileName);
+        });
+
+        $('#upload_students').on('click', function() {
+            var data = new FormData();
+            var csrfToken = document.getElementById('edit-csrf-token').value;
+            data.append('file', file);
+
+            $.ajax({
+                method: "POST",
+                url:'/api/v1/students/list',
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function() {
+                    $('#filter_students').click();
+                },
+                beforeSend : function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                }
+            });
+        });
+    </script>
+
+    <button type="button" hidden="true" id="show_editStudentModal" class="btn" data-toggle="modal" data-target="#editStudentModal"></button>
+
+    <!-- ADD STUDENT -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStudentModalCenterTitle">Добавить студента</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form action="/api/v1/students" method="post">
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_telegramId" type="number" name="telegramId" placeholder="Telegram Id">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_email" type="text" name="email" placeholder="Email">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_firstName" type="text" name="firstName" placeholder="Имя">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_lastName" type="text" name="lastName" placeholder="Фамилия">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_group" type="text" name="group" placeholder="Группа">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="add_subGroup" type="number" name="subGroup" placeholder="Подгруппа">
+                    </div>
+                    <input type="hidden" id="add-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
+                </form>
+                <input class="btn btn-primary mb-2" type="submit" value="Добавить" onclick="addStudent()"/>
+                <button type="button" id="close_addStudentModal" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT STUDENT -->
+    <div class="modal fade" id="editStudentModal" tabindex="-1" role="dialog" aria-labelledby="editStudentModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStudentModalCenterTitle">Редактировать студента</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form action="/api/v1/students/edit" method="post">
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_telegramId" type="number" name="telegramId" placeholder="Telegram Id">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_email" type="text" name="email" placeholder="Email">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_firstName" type="text" name="firstName" placeholder="Имя">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_lastName" type="text" name="lastName" placeholder="Фамилия">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_group" type="text" name="group" placeholder="Группа">
+                    </div>
+                    <div class="form-group mb-2">
+                        <input class="form-control" id="edit_subGroup" type="number" name="subGroup" placeholder="Подгруппа">
+                    </div>
+                    <input type="hidden" id="edit-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
+                </form>
+                <input class="btn btn-primary mb-2" type="submit" value="Редактировать" onclick="editStudent()"/>
+                <button type="button" id="close_editStudentModal" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function addStudent() {
+            var csrfToken = document.getElementById('add-csrf-token').value;
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/students",
+                cache: false,
+                data: JSON.stringify({
+                    "telegramId": document.getElementById('add_telegramId').value,
+                    "email": document.getElementById('add_email').value,
+                    "firstName": document.getElementById('add_firstName').value,
+                    "lastName": document.getElementById('add_lastName').value,
+                    "group": document.getElementById('add_group').value,
+                    "subGroup": document.getElementById('add_subGroup').value
+                }),
+                beforeSend : function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                },
+                success: function(response) {
+                    $('#close_addStudentModal').click();
+                    $('#filter_students').click();
+                },
+                contentType : "application/json"
+            });
+        }
+    </script>
+
+    <form class="form-inline" action="/api/v1/students" method="get">
+        <div class="form-group mb-2">
+            <label for="lastname" class="sr-only">Фамилия</label>
+            <input class="form-control" id="lastname" type="text" name="lastname" placeholder="Фамилия">
+        </div>
+        <div class="form-group mb-2">
+            <label for="firstname" class="sr-only">Имя</label>
+            <input class="form-control" id="firstname" type="text" name="firstname" placeholder="Имя">
+        </div>
+        <div class="form-group mb-2">
+            <label for="email" class="sr-only">Email</label>
+            <input class="form-control" id="email" type="text" name="email" placeholder="Email">
+        </div>
+        <div class="form-group mb-2">
+            <label for="group" class="sr-only">Группа</label>
+            <input class="form-control" id="group" type="text" name="group" placeholder="Группа">
+        </div>
+        <div class="form-group mb-2">
+            <label for="subgroup" class="sr-only">Подгруппа</label>
+            <input class="form-control" id="subgroup" type="number" name="subgroup" placeholder="Подгруппа">
+        </div>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+        <input class="btn btn-primary mb-2" id="filter_students" type="submit" value="Отфильтровать"/>
+    </form>
+
+    <form class="form-inline" action="/api/v1/students" methdd="get">
+        <div class="form-group mb-2">
+            <label for="lastname" class="sr-only">Фамилия</label>
+            <input class="form-control" id="lastname" type="hidden" name="lastname" placeholder="Фамилия">
+        </div>
+        <div class="form-group mb-2">
+            <label for="firstname" class="sr-only">Имя</label>
+            <input class="form-control" id="firstname" type="hidden" name="firstname" placeholder="Имя">
+        </div>
+        <div class="form-group mb-2">
+            <label for="email" class="sr-only">Email</label>
+            <input class="form-control" id="email" type="hidden" name="email" placeholder="Email">
+        </div>
+        <div class="form-group mb-2">
+            <label for="group" class="sr-only">Группа</label>
+            <input class="form-control" id="group" type="hidden" name="group" placeholder="Группа">
+        </div>
+        <div class="form-group mb-2">
+            <label for="subgroup" class="sr-only">Подгруппа</label>
+            <input class="form-control" id="subgroup" type="hidden" name="subgroup" placeholder="Подгруппа">
+        </div>
+        <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+        <input class="btn btn-primary mb-2" type="submit" value="Сбросить фильтры"/>
+    </form>
+
+    <table id="table_students" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Telegram id</th>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Email</th>
+            <th>Номер группы</th>
+            <th>Номер подгруппы</th>
+            <th/>
+            <th/>
+        </tr>
+        </thead>
+        <tbody>
+        {{#students}}
+            <tr>
+                <td>{{telegramId}}</td>
+                <td>{{firstName}}</td>
+                <td>{{lastName}}</td>
+                <td>{{email}}</td>
+                <td>{{group}}</td>
+                <td>{{subGroup}}</td>
+                <td><button type="button" class="btn" onclick="openEditStudent(this)">Редактировать</button></td>
+                <td><button type="button" class="btn-danger" onclick="deleteStudent(this)">Удалить</button></td>
+            </tr>
+        {{/students}}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('#table_students').DataTable();
+        } );
+
+        function openEditStudent(el) {
+            var row = el.parentNode.parentNode;
+            document.getElementById("edit_telegramId").value = row.cells[0].textContent;
+            document.getElementById("edit_firstName").value = row.cells[1].textContent;
+            document.getElementById("edit_lastName").value = row.cells[2].textContent;
+            document.getElementById("edit_email").value = row.cells[3].textContent;
+            document.getElementById("edit_group").value = row.cells[4].textContent;
+            document.getElementById("edit_subGroup").value = row.cells[5].textContent;
+            $('#show_editStudentModal').click();
+        }
+
+        function deleteStudent(el) {
+            var row = el.parentNode.parentNode;
+            var csrfToken = document.getElementById('edit-csrf-token').value;
+            $.ajax({
+                type: "DELETE",
+                url: "/api/v1/students?telegramId=" + row.cells[0].textContent,
+                cache: false,
+                success : function() {
+                    $('#filter_students').click();
+                },
+                beforeSend : function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                }
+            })
+        }
+
+        function editStudent() {
+            var csrfToken = document.getElementById('edit-csrf-token').value;
+            $.ajax({
+                type: "POST",
+                url: "/api/v1/students/edit",
+                cache: false,
+                data: JSON.stringify({
+                    "telegramId": document.getElementById('edit_telegramId').value,
+                    "email": document.getElementById('edit_email').value,
+                    "firstName": document.getElementById('edit_firstName').value,
+                    "lastName": document.getElementById('edit_lastName').value,
+                    "group": document.getElementById('edit_group').value,
+                    "subGroup": document.getElementById('edit_subGroup').value
+                }),
+                beforeSend : function(request) {
+                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+                },
+                success: function(response) {
+                    $('#close_editStudentModal').click();
+                    $('#filter_students').click();
+                },
+                contentType : "application/json"
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-package com.thorinhood.dbtg.controllers.admin;
+package com.thorinhood.dbtg.controllers;
 
 import com.thorinhood.dbtg.models.Student;
 import com.thorinhood.dbtg.models.filters.Filter;
@@ -13,12 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/api/v1/admin/students")
-public class AdminStudentsController {
+@RequestMapping("/api/v1/students")
+public class StudentsController {
 
     @Autowired
     private Deserializer studentsCsvDeserializer;
@@ -45,10 +46,10 @@ public class AdminStudentsController {
     @DeleteMapping(path = "/list", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity deleteStudents(@RequestParam List<Long> ids) {
         return ResponseEntity.ok().body(ids.stream()
-            .map(this::deleteOneStudent)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList()));
+                .map(this::deleteOneStudent)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
     }
 
     @PostMapping("/edit")
@@ -58,7 +59,7 @@ public class AdminStudentsController {
         }
         try {
             studentsRepository.save(student);
-        } catch(Exception exception) {
+        } catch (Exception exception) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
@@ -81,22 +82,31 @@ public class AdminStudentsController {
     public ResponseEntity deleteStudent(@RequestParam("telegramId") Long telegramId) {
         Optional<Student> student = deleteOneStudent(telegramId);
         return student.isPresent() ?
-            ResponseEntity.ok().body(student.get()) :
-            ResponseEntity.badRequest().body("Not found.");
+                ResponseEntity.ok().body(student.get()) :
+                ResponseEntity.badRequest().body("Not found.");
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<Student>> getStudents(@RequestParam(value = "lastname", required = false) String lastname,
-                                                     @RequestParam(value = "group", required = false) String group,
-                                                     @RequestParam(value = "subgroup", required = false) Integer subgroup,
-                                                     @RequestParam(value = "firstname", required = false) String firstname) {
+    @GetMapping
+    public String getStudents(@RequestParam(value = "lastname", required = false) String lastname,
+                                    @RequestParam(value = "group", required = false) String group,
+                                    @RequestParam(value = "subgroup", required = false) Integer subgroup,
+                                    @RequestParam(value = "firstname", required = false) String firstname,
+                                    @RequestParam(value = "email", required = false) String email,
+                                    Map<String, Object> model) {
         Filter<Student> filter = new Filter<Student>()
-            .andIfNotNull("lastName", lastname)
-            .andIfNotNull("firstName", firstname)
-            .andIfNotNull("group", group)
-            .andIfNotNull("subGroup", subgroup);
+                .andIfNotNull("lastName", lastname, Filter::contains)
+                .andIfNotNull("firstName", firstname, Filter::contains)
+                .andIfNotNull("group", group, Filter::contains)
+                .andIfNotNull("subGroup", subgroup, Filter::eq)
+                .andIfNotNull("email", email, Filter::contains);
         List<Student> students = studentsRepository.findAll(filter.getFilter());
-        return ResponseEntity.ok().body(students);
+        model.put("students", students);
+        model.put("lastname", lastname);
+        model.put("group", group);
+        model.put("subgroup", subgroup);
+        model.put("firstname", firstname);
+        model.put("email", email);
+        return "students";
     }
 
     private Optional<Student> deleteOneStudent(Long telegramId) {

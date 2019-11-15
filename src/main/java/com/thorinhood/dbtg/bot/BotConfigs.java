@@ -22,9 +22,12 @@ public class BotConfigs {
     public DefaultBotOptions proxyBotOptions() {
         DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
         botOptions.setMaxThreads(7);
-       // botOptions.setProxyHost(proxyHost);
-       // botOptions.setProxyPort(proxyPort);
-       // botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
+        botOptions.setProxyHost(proxyHost);
+        botOptions.setProxyPort(proxyPort);
+        botOptions.setProxyType(DefaultBotOptions.ProxyType.SOCKS5);
+        System.getProperties().put( "proxySet", "true" );
+        System.getProperties().put( "socksProxyHost", proxyHost );
+        System.getProperties().put( "socksProxyPort", String.valueOf(proxyPort) );
         return botOptions;
     }
 

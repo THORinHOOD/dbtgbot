@@ -8,6 +8,12 @@ databaseChangeLog:
             tableName: solutions
             columns:
               - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
                   name: student
                   type: bigint
                   constraints:
@@ -43,8 +49,16 @@ databaseChangeLog:
             onUpdate: RESTRICT
             referencedColumnNames: id
             referencedTableName: tasks
-        - addPrimaryKey:
-            columnNames: student, task
-            constraintName: pk_solution
+  - changeSet:
+      id: 7
+      author: thorinhood
+      changes:
+        - addAutoIncrement:
+            columnDataType: bigint
+            columnName: id
+            defaultOnNull: false
+            generationType: ALWAYS
+            incrementBy: 1
             schemaName: public
+            startWith: 1
             tableName: solutions

@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class SolutionDto {
     private Long telegramId;
-    private Integer taskId;
+    private Long taskId;
 }
