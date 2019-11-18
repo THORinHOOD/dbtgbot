@@ -8,12 +8,6 @@ databaseChangeLog:
             tableName: solutions
             columns:
               - column:
-                  name: id
-                  type: bigint
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
                   name: student
                   type: bigint
                   constraints:
@@ -33,6 +27,11 @@ databaseChangeLog:
                   type: datetime
                   constraints:
                     nullable: false
+              - column:
+                  name: mark
+                  type: int
+                  constraints:
+                    nullable: true
         - addForeignKeyConstraint:
             baseColumnNames: student
             baseTableName: solutions
@@ -49,16 +48,8 @@ databaseChangeLog:
             onUpdate: RESTRICT
             referencedColumnNames: id
             referencedTableName: tasks
-  - changeSet:
-      id: 7
-      author: thorinhood
-      changes:
-        - addAutoIncrement:
-            columnDataType: bigint
-            columnName: id
-            defaultOnNull: false
-            generationType: ALWAYS
-            incrementBy: 1
+        - addPrimaryKey:
+            columnNames: student, task
+            constraintName: pk_solutions
             schemaName: public
-            startWith: 1
             tableName: solutions

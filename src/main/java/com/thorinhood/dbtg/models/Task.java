@@ -44,7 +44,7 @@ public class Task {
     @Column(name = "task")
     private byte[] task;
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "solutionPK.task", fetch = FetchType.LAZY)
     private List<Solution> solutions;
 
 }

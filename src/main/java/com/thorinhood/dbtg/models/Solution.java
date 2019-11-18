@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Embeddable
@@ -18,16 +19,8 @@ import java.util.Date;
 @Table(name = "solutions")
 public class Solution {
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @Column(name = "student")
-    private Long student;
-
-    @Column(name = "task")
-    private Long task;
+    @EmbeddedId
+    private SolutionPK solutionPK;
 
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
@@ -36,5 +29,17 @@ public class Solution {
 
     @Column(name = "date_of_completion")
     private Date dateOfCompletion;
+
+    @Column(name = "mark")
+    private Integer mark;
+
+    @Embeddable
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SolutionPK implements Serializable {
+        private Long student;
+        private Long task;
+    }
 
 }

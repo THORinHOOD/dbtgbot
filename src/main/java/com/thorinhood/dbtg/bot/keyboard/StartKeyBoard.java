@@ -10,6 +10,7 @@ public class StartKeyBoard extends AbstractCustomKeyBoard {
     public static final String PROFILE = "Профиль";
     public static final String TASKS = "Условия заданий";
     public static final String UPLOAD_SOLUTION = "Сдать задание";
+    public static final String MARKS = "Оценки";
 
     @Override
     protected List<KeyboardRow> init() {
@@ -20,6 +21,7 @@ public class StartKeyBoard extends AbstractCustomKeyBoard {
         keyboard.add(row);
         row = new KeyboardRow();
         row.add(UPLOAD_SOLUTION);
+        row.add(MARKS);
         keyboard.add(row);
         return keyboard;
     }

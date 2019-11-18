@@ -8,6 +8,7 @@ import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import com.thorinhood.dbtg.repositories.TasksRepository;
+import com.thorinhood.dbtg.services.MarksService;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,25 +16,27 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 public class Bot extends AbstractBot {
 
-    private static String PROFILE_INFO = "telegram id : %s\nemail : %s\nfirst name : %s\n" +
-            "last name : %s\ngroup : %s\nsub group : %s";
+    private static String PROFILE_INFO = "telegram id : %s\nemail : %s\nимя : %s\n" +
+            "фамилия : %s\nгруппа : %s\nподгруппа : %s";
 
     private StudentsRepository studentsRepository;
     private TasksRepository tasksRepository;
     private SolutionsRepository solutionsRepository;
+    private MarksService marksService;
 
     public Bot(String token, DefaultBotOptions options, StudentsRepository studentsRepository,
                TasksRepository tasksRepository,
-               SolutionsRepository solutionsRepository) {
+               SolutionsRepository solutionsRepository,
+               MarksService marksService) {
         super("database_course_bot", token, options);
         this.studentsRepository = studentsRepository;
         this.tasksRepository = tasksRepository;
         this.solutionsRepository = solutionsRepository;
+        this.marksService = marksService;
     }
 
     @Override
@@ -54,6 +57,9 @@ public class Bot extends AbstractBot {
                 break;
             case StartKeyBoard.UPLOAD_SOLUTION:
                 waitTaskNumberToUpload(message.getChatId());
+                break;
+            case StartKeyBoard.MARKS:
+                getMarks(message.getChatId(), message.getFrom());
                 break;
         }
     }
@@ -98,18 +104,19 @@ public class Bot extends AbstractBot {
         } else {
             try {
                 Long studentId = Long.valueOf(update.getMessage().getFrom().getId());
-                List<Solution> solutions = solutionsRepository.studentOrTask(studentId, taskId);
-                Long id = null;
-                if (solutions.size() > 0) {
-                    id = solutions.iterator().next().getId();
+                Optional<Solution> solution = solutionsRepository.studentAndTask(studentId, taskId);
+                if (solution.isPresent()) {
+                    Solution solutionToUpdate = solution.get();
+                    solutionToUpdate.setSolution(file.get());
+                    solutionToUpdate.setDateOfCompletion(currentDate);
+                    solutionsRepository.save(solutionToUpdate);
+                } else {
+                    solutionsRepository.save(Solution.builder()
+                            .dateOfCompletion(currentDate)
+                            .solution(file.get())
+                            .solutionPK(new Solution.SolutionPK(studentId, taskId))
+                            .build());
                 }
-                solutionsRepository.save(Solution.builder()
-                        .id(id)
-                        .dateOfCompletion(currentDate)
-                        .solution(file.get())
-                        .student(studentId)
-                        .task(taskId)
-                        .build());
                 sendMessage(chatId, "Решение успешно загружено.");
                 return DialogStep.END();
             } catch (Exception ex) {
@@ -123,7 +130,7 @@ public class Bot extends AbstractBot {
         Long chatId = update.getMessage().getChatId();
         Long id;
 
-        if (update.getMessage().hasDocument() && update.getMessage().getText().equals(Keyboards.BACK)) {
+        if (!update.getMessage().hasDocument() && update.getMessage().getText().equals(Keyboards.BACK)) {
             return DialogStep.END();
         }
 
@@ -171,15 +178,25 @@ public class Bot extends AbstractBot {
         }
     }
 
+    private void getMarks(Long chatId, User user) throws TelegramApiException {
+        Long studentId = Long.valueOf(user.getId());
+        String result = marksService.getStudentMarks(studentId).stream()
+                .map(markInfo -> markInfo.getTask().getTitle() + " : " + markInfo.getSolution().getMark())
+                .reduce("Оценки : \n", (s1, s2) -> s1 + "\n" + s2);
+        sendMessage(chatId, result);
+    }
+
     private void getProfile(Long chatId, User user) throws TelegramApiException {
-        Optional<Student> students = studentsRepository.findById(Long.valueOf(user.getId()));
-        String text = students.isEmpty() ? "Не найден." : String.format(PROFILE_INFO,
-                students.get().getTelegramId(),
-                students.get().getEmail(),
-                students.get().getFirstName(),
-                students.get().getLastName(),
-                students.get().getGroup(),
-                students.get().getSubGroup());
+        Long studentId = Long.valueOf(user.getId());
+        Optional<Student> students = studentsRepository.findById(studentId);
+        String text = students.isEmpty() ? String.format("Не найден. Твой id : %d", studentId) :
+                String.format(PROFILE_INFO,
+                    students.get().getTelegramId(),
+                    students.get().getEmail(),
+                    students.get().getFirstName(),
+                    students.get().getLastName(),
+                    students.get().getGroup(),
+                    students.get().getSubGroup());
         sendMessage(chatId, text);
     }
 

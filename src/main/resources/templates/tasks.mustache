@@ -267,17 +267,25 @@
 
     <script>
         var editId = null;
+        var currentRow = null;
 
         function editTask() {
             var csrfToken = document.getElementById('edit-csrf-token').value;
             var data = new FormData();
+
+            var title = document.getElementById('edit_title').value;
+            var dateOfIssue = document.getElementById('edit_date_of_issue').value;
+            var deadLine = document.getElementById('edit_deadLine').value;
+            var maxScoreOffline = document.getElementById('edit_max_score_offline').value;
+            var maxScoreOnline = document.getElementById('edit_max_score_online').value;
+
             data.append('file', fileEdit);
             data.append('id', editId);
-            data.append('title', document.getElementById('edit_title').value);
-            data.append('date_of_issue', document.getElementById('edit_date_of_issue').value);
-            data.append('deadLine', document.getElementById('edit_deadLine').value);
-            data.append('max_score_offline', document.getElementById('edit_max_score_offline').value);
-            data.append('max_score_online', document.getElementById('edit_max_score_online').value);
+            data.append('title', title);
+            data.append('date_of_issue', dateOfIssue);
+            data.append('deadLine', deadLine);
+            data.append('max_score_offline', maxScoreOffline);
+            data.append('max_score_online', maxScoreOnline);
 
             $.ajax({
                 type: 'POST',
@@ -290,20 +298,26 @@
                     request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                 },
                 success: function() {
+                    currentRow.cells[0].textContent = editId;
+                    currentRow.cells[1].textContent = title;
+                    currentRow.cells[2].textContent = dateOfIssue + ' 00:00:00.0';
+                    currentRow.cells[3].textContent = deadLine + ' 00:00:00.0';
+                    currentRow.cells[4].textContent = maxScoreOffline;
+                    currentRow.cells[5].textContent = maxScoreOnline;
+                    currentRow = null;
                     $('#close_editTaskModal').click();
-                    $('#filter_tasks').click();
                 }
             });
         }
 
         function openEditTask(el) {
-            var row = el.parentNode.parentNode;
-            editId = row.cells[0].textContent;
-            document.getElementById('edit_title').value = row.cells[1].textContent;
-            document.getElementById('edit_date_of_issue').value = row.cells[2].textContent.split(' ')[0];
-            document.getElementById('edit_deadLine').value = row.cells[3].textContent.split(' ')[0];
-            document.getElementById('edit_max_score_offline').value = row.cells[4].textContent;
-            document.getElementById('edit_max_score_online').value = row.cells[5].textContent;
+            currentRow = el.parentNode.parentNode;
+            editId = currentRow.cells[0].textContent;
+            document.getElementById('edit_title').value = currentRow.cells[1].textContent;
+            document.getElementById('edit_date_of_issue').value = currentRow.cells[2].textContent.split(' ')[0];
+            document.getElementById('edit_deadLine').value = currentRow.cells[3].textContent.split(' ')[0];
+            document.getElementById('edit_max_score_offline').value = currentRow.cells[4].textContent;
+            document.getElementById('edit_max_score_online').value = currentRow.cells[5].textContent;
             $('#show_editTaskModal').click();
         }
 

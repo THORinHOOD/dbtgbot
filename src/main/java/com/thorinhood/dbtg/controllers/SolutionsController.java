@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,13 +36,28 @@ public class SolutionsController {
     @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<SolutionExtra>> getSolution(@RequestParam(value = "student", required = false) Long student,
                                                            @RequestParam(value = "task", required = false) Long task) {
-        List<Solution> solutions = solutionsRepository.studentOrTask(student, task);
+        Optional<Solution> solutions = solutionsRepository.studentAndTask(student, task);
         return ResponseEntity.ok(solutions.stream().map(SolutionExtra::new).collect(Collectors.toList()));
     }
 
+    @PutMapping("/mark")
+    public ResponseEntity setMark(@RequestParam("taskId") long taskId,
+                                  @RequestParam("studentId") long studentId,
+                                  @RequestParam("mark") int mark) {
+        Optional<Solution> solution = solutionsRepository.studentAndTask(studentId, taskId);
+        if (solution.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Solution solutionToUpdate = solution.get();
+        solutionToUpdate.setMark(mark);
+        solutionsRepository.save(solutionToUpdate);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/file", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> getSolutionFile(@RequestParam("id") long id) {
-        Optional<Solution> solution = solutionsRepository.findById(id);
+    public ResponseEntity<byte[]> getSolutionFile(@RequestParam("task_id") long taskId,
+                                                  @RequestParam("student_id") long studentId) {
+        Optional<Solution> solution = solutionsRepository.studentAndTask(studentId, taskId);
         if (solution.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -60,6 +73,7 @@ public class SolutionsController {
             @RequestParam(value = "date_of_completion", required = false) String dateOfCompletionStr,
             @RequestParam(value = "student_group", required = false) String studentGroup,
             @RequestParam(value = "student_subgroup", required = false) Integer studentSubgroup,
+            @RequestParam(value = "is_marked", required = false) Integer isMarked,
             Map<String, Object> model) {
 
         Date dateOfCompletion = parseDate(dateOfCompletionStr);
@@ -70,10 +84,18 @@ public class SolutionsController {
             List<Solution> solutions = task.getSolutions();
             List<SolutionInfo> solutionInfos = solutions.stream()
                     .map(solution -> {
+                        if (isMarked != null && isMarked != 0) {
+                            if (isMarked == 1 && solution.getMark() == null) {
+                                return null;
+                            } else if (isMarked == 2 && solution.getMark() != null) {
+                                return null;
+                            }
+                        }
+
                         if (!eq(getZeroTimeDate(solution.getDateOfCompletion()), getZeroTimeDate(dateOfCompletion))) {
                             return null;
                         }
-                        Optional<Student> student = studentsRepository.findById(solution.getStudent());
+                        Optional<Student> student = studentsRepository.findById(solution.getSolutionPK().getStudent());
                         if (student.isEmpty() ||
                                 !contains(student.get().getLastName(), studentLastname) ||
                                 !contains(student.get().getFirstName(), studentFirstname) ||
@@ -150,7 +172,6 @@ public class SolutionsController {
     @NoArgsConstructor
     @Data
     private static class SolutionInfo {
-        private Long solutionId;
         private Long taskId;
         private String taskTitle;
         private Long studentId;
@@ -159,9 +180,9 @@ public class SolutionsController {
         private String studentFirstname;
         private String studentLastname;
         private Date dateOfSolution;
+        private Integer mark;
 
         public SolutionInfo(Solution solution, Task task, Student student) {
-            solutionId = solution.getId();
             taskId = task.getId();
             studentGroup = student.getGroup();
             studentSubgroup = student.getSubGroup();
@@ -170,6 +191,7 @@ public class SolutionsController {
             studentFirstname = student.getFirstName();
             studentLastname = student.getLastName();
             dateOfSolution = solution.getDateOfCompletion();
+            mark = solution.getMark();
         }
     }
 
@@ -182,8 +204,8 @@ public class SolutionsController {
         private Date dateOfCompletion;
 
         public SolutionExtra(Solution solution) {
-            this.telegramId = solution.getStudent();
-            this.taskId = solution.getTask();
+            this.telegramId = solution.getSolutionPK().getStudent();
+            this.taskId = solution.getSolutionPK().getTask();
             this.dateOfCompletion = solution.getDateOfCompletion();
         }
     }

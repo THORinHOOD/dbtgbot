@@ -90,21 +90,27 @@
 
                 <form action="/api/v1/students" method="post">
                     <div class="form-group mb-2">
+                        <label>Telegram Id</label>
                         <input class="form-control" id="add_telegramId" type="number" name="telegramId" placeholder="Telegram Id">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Email</label>
                         <input class="form-control" id="add_email" type="text" name="email" placeholder="Email">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Имя</label>
                         <input class="form-control" id="add_firstName" type="text" name="firstName" placeholder="Имя">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Фамилия</label>
                         <input class="form-control" id="add_lastName" type="text" name="lastName" placeholder="Фамилия">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Группа</label>
                         <input class="form-control" id="add_group" type="text" name="group" placeholder="Группа">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Подгруппа</label>
                         <input class="form-control" id="add_subGroup" type="number" name="subGroup" placeholder="Подгруппа">
                     </div>
                     <input type="hidden" id="add-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
@@ -128,21 +134,27 @@
 
                 <form action="/api/v1/students/edit" method="post">
                     <div class="form-group mb-2">
+                        <label>Telegram Id</label>
                         <input class="form-control" id="edit_telegramId" type="number" name="telegramId" placeholder="Telegram Id">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Email</label>
                         <input class="form-control" id="edit_email" type="text" name="email" placeholder="Email">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Имя</label>
                         <input class="form-control" id="edit_firstName" type="text" name="firstName" placeholder="Имя">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Фамилия</label>
                         <input class="form-control" id="edit_lastName" type="text" name="lastName" placeholder="Фамилия">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Группа</label>
                         <input class="form-control" id="edit_group" type="text" name="group" placeholder="Группа">
                     </div>
                     <div class="form-group mb-2">
+                        <label>Подгруппа</label>
                         <input class="form-control" id="edit_subGroup" type="number" name="subGroup" placeholder="Подгруппа">
                     </div>
                     <input type="hidden" id="edit-csrf-token" name="_csrf" value="{{_csrf.token}}"/>
@@ -260,18 +272,20 @@
     </table>
 
     <script>
+        var currentRow = null;
+
         $(document).ready(function() {
             $('#table_students').DataTable();
         } );
 
         function openEditStudent(el) {
-            var row = el.parentNode.parentNode;
-            document.getElementById("edit_telegramId").value = row.cells[0].textContent;
-            document.getElementById("edit_firstName").value = row.cells[1].textContent;
-            document.getElementById("edit_lastName").value = row.cells[2].textContent;
-            document.getElementById("edit_email").value = row.cells[3].textContent;
-            document.getElementById("edit_group").value = row.cells[4].textContent;
-            document.getElementById("edit_subGroup").value = row.cells[5].textContent;
+            currentRow = el.parentNode.parentNode;
+            document.getElementById("edit_telegramId").value = currentRow.cells[0].textContent;
+            document.getElementById("edit_firstName").value = currentRow.cells[1].textContent;
+            document.getElementById("edit_lastName").value = currentRow.cells[2].textContent;
+            document.getElementById("edit_email").value = currentRow.cells[3].textContent;
+            document.getElementById("edit_group").value = currentRow.cells[4].textContent;
+            document.getElementById("edit_subGroup").value = currentRow.cells[5].textContent;
             $('#show_editStudentModal').click();
         }
 
@@ -293,24 +307,36 @@
 
         function editStudent() {
             var csrfToken = document.getElementById('edit-csrf-token').value;
+            var telegramId = document.getElementById('edit_telegramId').value;
+            var email = document.getElementById('edit_email').value;
+            var firstName = document.getElementById('edit_firstName').value;
+            var lastName = document.getElementById('edit_lastName').value;
+            var group = document.getElementById('edit_group').value;
+            var subGroup = document.getElementById('edit_subGroup').value;
             $.ajax({
                 type: "POST",
                 url: "/api/v1/students/edit",
                 cache: false,
                 data: JSON.stringify({
-                    "telegramId": document.getElementById('edit_telegramId').value,
-                    "email": document.getElementById('edit_email').value,
-                    "firstName": document.getElementById('edit_firstName').value,
-                    "lastName": document.getElementById('edit_lastName').value,
-                    "group": document.getElementById('edit_group').value,
-                    "subGroup": document.getElementById('edit_subGroup').value
+                    "telegramId": telegramId,
+                    "email": email,
+                    "firstName": firstName,
+                    "lastName": lastName,
+                    "group": group,
+                    "subGroup": subGroup
                 }),
                 beforeSend : function(request) {
                     request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                 },
                 success: function(response) {
+                    currentRow.cells[0].textContent = telegramId;
+                    currentRow.cells[1].textContent = firstName;
+                    currentRow.cells[2].textContent = lastName;
+                    currentRow.cells[3].textContent = email;
+                    currentRow.cells[4].textContent = group;
+                    currentRow.cells[5].textContent = subGroup;
+                    currentRow = null;
                     $('#close_editStudentModal').click();
-                    $('#filter_students').click();
                 },
                 contentType : "application/json"
             });
