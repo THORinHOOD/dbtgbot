@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
+import java.util.Date;
 
 @NoArgsConstructor
 public class Filter<T> {
@@ -59,6 +60,10 @@ public class Filter<T> {
             Join<T, Object> join = root.join(wrapper);
             return cb.equal(join.get(field), value);
         };
+    }
+
+    public static <T> Specification<T> lessThanOrEqualTo(String field, Date value) {
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(field), value);
     }
 
     public Specification<T> getFilter() {

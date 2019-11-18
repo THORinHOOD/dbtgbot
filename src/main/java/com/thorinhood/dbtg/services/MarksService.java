@@ -1,7 +1,6 @@
 package com.thorinhood.dbtg.services;
 
 import com.thorinhood.dbtg.models.Solution;
-import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.models.filters.Filter;
 import com.thorinhood.dbtg.models.plain.MarkInfo;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 

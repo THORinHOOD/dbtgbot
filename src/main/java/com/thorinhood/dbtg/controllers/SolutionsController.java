@@ -6,6 +6,7 @@ import com.thorinhood.dbtg.models.Task;
 import com.thorinhood.dbtg.repositories.SolutionsRepository;
 import com.thorinhood.dbtg.repositories.StudentsRepository;
 import com.thorinhood.dbtg.repositories.TasksRepository;
+import com.thorinhood.dbtg.services.DatesService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,9 @@ public class SolutionsController {
 
     @Autowired
     private StudentsRepository studentsRepository;
+
+    @Autowired
+    private DatesService datesService;
 
     @GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<SolutionExtra>> getSolution(@RequestParam(value = "student", required = false) Long student,
@@ -70,13 +74,16 @@ public class SolutionsController {
             @RequestParam(value = "student_id", required = false) Long studentId,
             @RequestParam(value = "student_lastname", required = false) String studentLastname,
             @RequestParam(value = "student_firstname", required = false) String studentFirstname,
-            @RequestParam(value = "date_of_completion", required = false) String dateOfCompletionStr,
+            @RequestParam(value = "date_of_completion_from", required = false) String dateOfCompletionFromStr,
+            @RequestParam(value = "date_of_completion_to", required = false) String dateOfCompletionToStr,
             @RequestParam(value = "student_group", required = false) String studentGroup,
             @RequestParam(value = "student_subgroup", required = false) Integer studentSubgroup,
             @RequestParam(value = "is_marked", required = false) Integer isMarked,
             Map<String, Object> model) {
 
-        Date dateOfCompletion = parseDate(dateOfCompletionStr);
+        Date dateOfCompletionFrom = datesService.parseDate(dateOfCompletionFromStr, "yyyy-MM-dd");
+        Date dateOfCompletionTo = datesService.parseDate(dateOfCompletionToStr, "yyyy-MM-dd");
+
         Optional<Task> taskOptional = tasksRepository.findById(taskId);
 
         if (taskOptional.isPresent()) {
@@ -92,19 +99,23 @@ public class SolutionsController {
                             }
                         }
 
-                        if (!eq(getZeroTimeDate(solution.getDateOfCompletion()), getZeroTimeDate(dateOfCompletion))) {
+                        if (datesService.greaterOrEqOnlyDates(solution.getDateOfCompletion(), dateOfCompletionTo) &&
+                            datesService.lessOrEqOnlyDates(solution.getDateOfCompletion(), dateOfCompletionFrom)) {
+
+                            Optional<Student> student = studentsRepository.findById(solution.getSolutionPK().getStudent());
+                            if (student.isEmpty() ||
+                                    !contains(student.get().getLastName(), studentLastname) ||
+                                    !contains(student.get().getFirstName(), studentFirstname) ||
+                                    !eq(student.get().getTelegramId(), studentId) ||
+                                    !contains(student.get().getGroup(), studentGroup) ||
+                                    !eq(student.get().getSubGroup(), studentSubgroup)) {
+                                return null;
+                            }
+                            return new SolutionInfo(solution, task, student.get());
+
+                        } else {
                             return null;
                         }
-                        Optional<Student> student = studentsRepository.findById(solution.getSolutionPK().getStudent());
-                        if (student.isEmpty() ||
-                                !contains(student.get().getLastName(), studentLastname) ||
-                                !contains(student.get().getFirstName(), studentFirstname) ||
-                                !eq(student.get().getTelegramId(), studentId) ||
-                                !contains(student.get().getGroup(), studentGroup) ||
-                                !eq(student.get().getSubGroup(), studentSubgroup)) {
-                            return null;
-                        }
-                        return new SolutionInfo(solution, task, student.get());
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -116,9 +127,11 @@ public class SolutionsController {
         model.put("studentLastname", studentLastname);
         model.put("studentFirstname", studentFirstname);
         model.put("studentId", studentId);
-        model.put("dateOfCompletion", dateOfCompletionStr);
+        model.put("dateOfCompletionFrom", dateOfCompletionFromStr);
+        model.put("dateOfCompletionTo", dateOfCompletionTo);
         model.put("studentGroup", studentGroup);
         model.put("studentSubgroup", studentSubgroup);
+        model.put("isMarked", isMarked);
 
         return "solutions";
     }
@@ -143,30 +156,6 @@ public class SolutionsController {
         return origin.contains(substr);
     }
 
-    private Date parseDate(String date) {
-        if (date == null) {
-            return null;
-        }
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    private static Date getZeroTimeDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        date = calendar.getTime();
-        return date;
-    }
 
     @AllArgsConstructor
     @NoArgsConstructor

@@ -164,60 +164,36 @@
     </script>
 
     <!-- FILTERS -->
-    <form class="form-inline" action="/api/v1/tasks" method="get">
-        <div class="form-group mb-2">
-            <label for="id" class="sr-only">Id</label>
+    <form class="form-row align-items-center" action="/api/v1/tasks" method="get">
+        <div class="form-group col-mb-6">
+            <label for="id">Id</label>
             <input class="form-control" id="id" type="number" name="id" placeholder="Id">
         </div>
-        <div class="form-group mb-2">
-            <label for="title" class="sr-only">Название</label>
+        <div class="form-group col-mb-6">
+            <label for="title">Название</label>
             <input class="form-control" id="title" type="text" name="title" placeholder="Название">
         </div>
-        <div class="form-group mb-2">
-            <label for="date_of_issue" class="sr-only">Дата начала</label>
+        <div class="form-group col-mb-6">
+            <label for="date_of_issue">Дата начала</label>
             <input class="form-control" id="date_of_issue" type="date" name="date_of_issue" placeholder="Дата начала">
         </div>
-        <div class="form-group mb-2">
-            <label for="deadline" class="sr-only">Дедлайн</label>
+        <div class="form-group col-mb-6">
+            <label for="deadline">Дедлайн</label>
             <input class="form-control" id="deadline" type="date" name="deadline" placeholder="Дедлайн">
         </div>
-        <div class="form-group mb-2">
-            <label for="max_score_offline" class="sr-only">Макс. оценка оффлайн</label>
+        <div class="form-group col-mb-6">
+            <label for="max_score_offline">Макс. оценка оффлайн</label>
             <input class="form-control" id="max_score_offline" type="number" name="max_score_offline" placeholder="Макс. оценка оффлайн">
         </div>
-        <div class="form-group mb-2">
-            <label for="max_score_online" class="sr-only">Макс. оценка онлайн</label>
+        <div class="form-group col-mb-6">
+            <label for="max_score_online">Макс. оценка онлайн</label>
             <input class="form-control" id="max_score_online" type="number" name="max_score_online" placeholder="Макс. оценка онлайн">
         </div>
         <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
-        <input class="btn btn-primary mb-2" id="filter_tasks" type="submit" value="Отфильтровать"/>
+        <button type="submit" class="btn btn-primary mb-2" id="filter_tasks" style="margin-top: 22px">Отфильтровать</button>
     </form>
 
     <form class="form-inline" action="/api/v1/tasks" method="get">
-        <div class="form-group mb-2">
-            <label for="id" class="sr-only">Id</label>
-            <input class="form-control" id="id" type="hidden" name="id" placeholder="Id">
-        </div>
-        <div class="form-group mb-2">
-            <label for="title" class="sr-only">Название</label>
-            <input class="form-control" id="title" type="hidden" name="title" placeholder="Название">
-        </div>
-        <div class="form-group mb-2">
-            <label for="date_of_issue" class="sr-only">Дата начала</label>
-            <input class="form-control" id="date_of_issue" type="hidden" name="date_of_issue" placeholder="Дата начала">
-        </div>
-        <div class="form-group mb-2">
-            <label for="deadline" class="sr-only">Дедлайн</label>
-            <input class="form-control" id="deadline" type="hidden" name="deadline" placeholder="Дедлайн">
-        </div>
-        <div class="form-group mb-2">
-            <label for="max_score_offline" class="sr-only">Макс. оценка оффлайн</label>
-            <input class="form-control" id="max_score_offline" type="hidden" name="max_score_offline" placeholder="Макс. оценка оффлайн">
-        </div>
-        <div class="form-group mb-2">
-            <label for="max_score_online" class="sr-only">Макс. оценка онлайн</label>
-            <input class="form-control" id="max_score_online" type="hidden" name="max_score_online" placeholder="Макс. оценка онлайн">
-        </div>
         <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
         <input class="btn btn-primary mb-2" id="filter_tasks" type="submit" value="Сбросить фильтры"/>
     </form>

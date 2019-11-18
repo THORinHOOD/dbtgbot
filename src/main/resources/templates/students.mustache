@@ -192,52 +192,33 @@
         }
     </script>
 
-    <form class="form-inline" action="/api/v1/students" method="get">
-        <div class="form-group mb-2">
-            <label for="lastname" class="sr-only">Фамилия</label>
+    <!-- FILTERS -->
+    <form class="form-row align-items-center" action="/api/v1/students" method="get">
+        <div class="form-group col-mb-6">
+            <label for="lastname">Фамилия</label>
             <input class="form-control" id="lastname" type="text" name="lastname" placeholder="Фамилия">
         </div>
-        <div class="form-group mb-2">
-            <label for="firstname" class="sr-only">Имя</label>
+        <div class="form-group col-mb-6">
+            <label for="firstname">Имя</label>
             <input class="form-control" id="firstname" type="text" name="firstname" placeholder="Имя">
         </div>
-        <div class="form-group mb-2">
-            <label for="email" class="sr-only">Email</label>
+        <div class="form-group col-mb-6">
+            <label for="email">Email</label>
             <input class="form-control" id="email" type="text" name="email" placeholder="Email">
         </div>
-        <div class="form-group mb-2">
-            <label for="group" class="sr-only">Группа</label>
+        <div class="form-group col-mb-6">
+            <label for="group">Группа</label>
             <input class="form-control" id="group" type="text" name="group" placeholder="Группа">
         </div>
-        <div class="form-group mb-2">
-            <label for="subgroup" class="sr-only">Подгруппа</label>
+        <div class="form-group col-mb-6">
+            <label for="subgroup">Подгруппа</label>
             <input class="form-control" id="subgroup" type="number" name="subgroup" placeholder="Подгруппа">
         </div>
         <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
-        <input class="btn btn-primary mb-2" id="filter_students" type="submit" value="Отфильтровать"/>
+        <button type="submit" class="btn btn-primary mb-2" id="filter_students" style="margin-top: 22px">Отфильтровать</button>
     </form>
 
-    <form class="form-inline" action="/api/v1/students" methdd="get">
-        <div class="form-group mb-2">
-            <label for="lastname" class="sr-only">Фамилия</label>
-            <input class="form-control" id="lastname" type="hidden" name="lastname" placeholder="Фамилия">
-        </div>
-        <div class="form-group mb-2">
-            <label for="firstname" class="sr-only">Имя</label>
-            <input class="form-control" id="firstname" type="hidden" name="firstname" placeholder="Имя">
-        </div>
-        <div class="form-group mb-2">
-            <label for="email" class="sr-only">Email</label>
-            <input class="form-control" id="email" type="hidden" name="email" placeholder="Email">
-        </div>
-        <div class="form-group mb-2">
-            <label for="group" class="sr-only">Группа</label>
-            <input class="form-control" id="group" type="hidden" name="group" placeholder="Группа">
-        </div>
-        <div class="form-group mb-2">
-            <label for="subgroup" class="sr-only">Подгруппа</label>
-            <input class="form-control" id="subgroup" type="hidden" name="subgroup" placeholder="Подгруппа">
-        </div>
+    <form class="form-inline" action="/api/v1/students" method="get">
         <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
         <input class="btn btn-primary mb-2" type="submit" value="Сбросить фильтры"/>
     </form>

@@ -16,15 +16,21 @@
         '{{#studentId}}'
         document.getElementById('student_id').value = '{{studentId}}';
         '{{/studentId}}'
-        '{{#dateOfCompletion}}'
-        document.getElementById('date_of_completion').value = '{{dateOfCompletion}}';
-        '{{/dateOfCompletion}}'
+        '{{#dateOfCompletionFrom}}'
+        document.getElementById('date_of_completion_from').value = '{{dateOfCompletionFrom}}';
+        '{{/dateOfCompletionFrom}}'
+        '{{#dateOfCompletionTo}}'
+        document.getElementById('date_of_completion_to').value = '{{dateOfCompletionTo}}';
+        '{{/dateOfCompletionTo}}'
         '{{#studentGroup}}'
         document.getElementById('student_group').value = '{{studentGroup}}';
         '{{/studentGroup}}'
         '{{#studentSubgroup}}'
         document.getElementById('student_subgroup').value = '{{studentSubgroup}}';
         '{{/studentSubgroup}}'
+        '{{#isMarked}}'
+        document.getElementById('is_marked').value = '{{isMarked}}';
+        '{{/isMarked}}'
     }
 </script>
 
@@ -69,70 +75,53 @@
 </div>
 
 <!-- FILTERS -->
-<form class="form-inline" action="/api/v1/solutions" method="get">
-    <div class="form-group mb-2">
+<form class="form-row align-items-center" action="/api/v1/solutions" method="get">
+    <div class="form-group col-mb-6">
         <input class="form-control" id="task_id" type="hidden" name="task_id" value="{{taskId}}">
     </div>
-    <div class="form-group mb-2">
-        <label for="student_id" class="sr-only">Student Id</label>
+    <div class="form-group col-mb-6">
+        <label for="student_id">Student Id</label>
         <input class="form-control" id="student_id" type="number" name="student_id" placeholder="Student Id">
     </div>
-    <div class="form-group mb-2">
-        <label for="student_lastname" class="sr-only">Фамилия</label>
+    <div class="form-group col-mb-6">
+        <label for="student_lastname">Фамилия</label>
         <input class="form-control" id="student_lastname" type="text" name="student_lastname" placeholder="Фамилия">
     </div>
-    <div class="form-group mb-2">
-        <label for="student_firstname" class="sr-only">Имя</label>
+    <div class="form-group col-mb-6">
+        <label for="student_firstname">Имя</label>
         <input class="form-control" id="student_firstname" type="text" name="student_firstname" placeholder="Имя">
     </div>
-    <div class="form-group mb-2">
-        <label for="student_group" class="sr-only">Группа</label>
+    <div class="form-group col-mb-6">
+        <label for="student_group">Группа</label>
         <input class="form-control" id="student_group" type="text" name="student_group" placeholder="Группа">
     </div>
-    <div class="form-group mb-2">
-        <label for="student_subgroup" class="sr-only">Подгруппа</label>
+    <div class="form-group col-mb-6">
+        <label for="student_subgroup">Подгруппа</label>
         <input class="form-control" id="student_subgroup" type="number" name="student_subgroup" placeholder="Подгруппа">
     </div>
-    <div class="form-group mb-2">
-        <label for="date_of_completion" class="sr-only">Дата сдачи</label>
-        <input class="form-control" id="date_of_completion" type="date" name="date_of_completion" placeholder="Дата сдачи">
+    <div class="form-group col-mb-6">
+        <label for="date_of_completion_from">От</label>
+        <input class="form-control" id="date_of_completion_from" type="date" name="date_of_completion_from" placeholder="От">
     </div>
-
-
-    <div class="form-group mb-2">
-        <select id="filter_" class="form-control">
-            <option value = "0" selected>Неважно стоит оценка, или нет</option>
-            <option value = "1">Есть оценка</option>
-            <option value = "2">Нет оценки</option>
+    <div class="form-group col-mb-6">
+        <label for="date_of_completion_to">До</label>
+        <input class="form-control" id="date_of_completion_to" type="date" name="date_of_completion_to" placeholder="До">
+    </div>
+    <div class="form-group col-md-6">
+        <label for="is_marked">По наличию оценки</label>
+        <select class="custom-select form-control" id="is_marked" name="is_marked">
+            <option selected value="0">С/Без оценки</option>
+            <option value="1">С оценкой</option>
+            <option value="2">Без оценки</option>
         </select>
     </div>
-
-
     <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
-    <input class="btn btn-primary mb-2" id="filter_solutions" type="submit" value="Отфильтровать"/>
+    <button type="submit" class="btn btn-primary mb-2" id="filter_solutions" style="margin-top: 22px">Отфильтровать</button>
 </form>
 
 <form class="form-inline" action="/api/v1/solutions" method="get">
     <div class="form-group mb-2">
         <input class="form-control" id="task_id" type="hidden" name="task_id" value="{{taskId}}">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="student_id" type="hidden" name="student_id">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="student_lastname" type="hidden" name="student_lastname">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="student_firstname" type="hidden" name="student_firstname">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="student_group" type="hidden" name="student_group">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="student_subgroup" type="hidden" name="student_subgroup">
-    </div>
-    <div class="form-group mb-2">
-        <input class="form-control" id="date_of_completion" type="hidden" name="date_of_completion">
     </div>
     <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
     <input class="btn btn-primary mb-2" id="filter_solutions_clear" type="submit" value="Сбросить фильтры"/>
@@ -207,8 +196,6 @@
             }
         });
     }
-
-
 </script>
 
 </body>

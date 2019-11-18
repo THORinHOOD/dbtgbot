@@ -23,7 +23,7 @@ public class TelegramService {
 
     @PostConstruct
     public void postContruct() throws TelegramApiRequestException {
-        telegramBotsApi.registerBot(telegramBot);
+       // telegramBotsApi.registerBot(telegramBot);
     }
 
 }
